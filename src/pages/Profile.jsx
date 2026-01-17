@@ -37,13 +37,17 @@ const SAMPLE_ACHIEVEMENTS = [
 
 export default function Profile() {
   const { t, isRTL, language } = useLanguage();
+  
+  // Get player ID from URL if viewing another player's profile
+  const urlParams = new URLSearchParams(window.location.search);
+  const viewingPlayerId = urlParams.get('id');
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: player, isLoading } = useQuery({
+  const { data: currentUserPlayer } = useQuery({
     queryKey: ['currentPlayer', user?.id],
     queryFn: async () => {
       const players = await base44.entities.Player.filter({ user_id: user.id });
@@ -51,6 +55,20 @@ export default function Profile() {
     },
     enabled: !!user?.id,
   });
+
+  const { data: player, isLoading } = useQuery({
+    queryKey: ['player', viewingPlayerId || currentUserPlayer?.id],
+    queryFn: async () => {
+      if (viewingPlayerId) {
+        const players = await base44.entities.Player.filter({ id: viewingPlayerId });
+        return players[0];
+      }
+      return currentUserPlayer;
+    },
+    enabled: !!viewingPlayerId || !!currentUserPlayer?.id,
+  });
+
+  const isOwnProfile = !viewingPlayerId || player?.id === currentUserPlayer?.id;
 
   const { data: recentGames = [] } = useQuery({
     queryKey: ['playerRecentGames', player?.id],
@@ -90,15 +108,17 @@ export default function Profile() {
       <div className="relative bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-3xl p-6 mb-6 overflow-hidden">
         <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
         
-        {/* Settings Button */}
-        <Link 
-          to={createPageUrl('Settings')}
-          className={cn("absolute top-4", isRTL ? "left-4" : "right-4")}
-        >
-          <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
-            <Settings className="w-5 h-5" />
-          </Button>
-        </Link>
+        {/* Settings Button - Only show on own profile */}
+        {isOwnProfile && (
+          <Link 
+            to={createPageUrl('Settings')}
+            className={cn("absolute top-4", isRTL ? "left-4" : "right-4")}
+          >
+            <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
+              <Settings className="w-5 h-5" />
+            </Button>
+          </Link>
+        )}
 
         <div className={cn("relative flex items-center gap-4", isRTL && "flex-row-reverse")}>
           <div className="relative">
@@ -147,16 +167,18 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Edit Profile Button */}
-        <Link to={createPageUrl('EditProfile')}>
-          <Button 
-            variant="outline" 
-            className="mt-4 w-full bg-white/10 border-white/30 text-white hover:bg-white/20 gap-2"
-          >
-            <Edit className="w-4 h-4" />
-            {t('profile.editProfile')}
-          </Button>
-        </Link>
+        {/* Edit Profile Button - Only show on own profile */}
+        {isOwnProfile && (
+          <Link to={createPageUrl('EditProfile')}>
+            <Button 
+              variant="outline" 
+              className="mt-4 w-full bg-white/10 border-white/30 text-white hover:bg-white/20 gap-2"
+            >
+              <Edit className="w-4 h-4" />
+              {t('profile.editProfile')}
+            </Button>
+          </Link>
+        )}
       </div>
 
       {/* Tabs */}
@@ -178,20 +200,22 @@ export default function Profile() {
           <div>
             <div className={cn("flex items-center justify-between mb-3", isRTL && "flex-row-reverse")}>
               <h2 className="text-lg font-semibold text-gray-900">{t('profile.friends')}</h2>
-              <div className={cn("flex gap-2", isRTL && "flex-row-reverse")}>
-                <Link to={createPageUrl('FriendRequests')}>
-                  <Button size="sm" variant="outline" className="gap-2">
-                    <Users className="w-4 h-4" />
-                    {language === 'he' ? 'בקשות' : 'Requests'}
-                  </Button>
-                </Link>
-                <Link to={createPageUrl('FindFriends')}>
-                  <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 gap-2">
-                    <UserPlus className="w-4 h-4" />
-                    {t('profile.findFriends')}
-                  </Button>
-                </Link>
-              </div>
+              {isOwnProfile && (
+                <div className={cn("flex gap-2", isRTL && "flex-row-reverse")}>
+                  <Link to={createPageUrl('FriendRequests')}>
+                    <Button size="sm" variant="outline" className="gap-2">
+                      <Users className="w-4 h-4" />
+                      {language === 'he' ? 'בקשות' : 'Requests'}
+                    </Button>
+                  </Link>
+                  <Link to={createPageUrl('FindFriends')}>
+                    <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 gap-2">
+                      <UserPlus className="w-4 h-4" />
+                      {t('profile.findFriends')}
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
             
             <div className="bg-white rounded-xl p-4 border border-gray-100 text-center">
