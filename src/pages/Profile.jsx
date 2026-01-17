@@ -61,8 +61,7 @@ export default function Profile() {
     queryKey: ['player', viewingPlayerId || currentUserPlayer?.id],
     queryFn: async () => {
       if (viewingPlayerId) {
-        const players = await base44.entities.Player.filter({ id: viewingPlayerId });
-        return players[0];
+        return base44.entities.Player.get(viewingPlayerId);
       }
       return currentUserPlayer;
     },
