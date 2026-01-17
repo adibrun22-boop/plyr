@@ -80,6 +80,13 @@ export default function Notifications() {
         '/events': 'Events',
       };
       
+      // Handle event details links with query parameters
+      if (notification.link.includes('/event-details?id=')) {
+        const eventId = notification.link.split('id=')[1];
+        window.location.href = createPageUrl('EventDetails') + '?id=' + eventId;
+        return;
+      }
+      
       if (linkMap[notification.link]) {
         window.location.href = createPageUrl(linkMap[notification.link]);
       } else if (notification.link.startsWith('?page=')) {
