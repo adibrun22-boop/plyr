@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Search, UserPlus, UserCheck, X, ChevronLeft } from 'lucide-react';
@@ -142,14 +144,16 @@ export default function FindFriends() {
                   className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm"
                 >
                   <div className={cn("flex items-center gap-3", isRTL && "flex-row-reverse")}>
-                    <div className="relative">
-                      <Avatar src={player.avatar_url} name={player.username} size="lg" />
-                      <div className="absolute -bottom-1 -right-1">
-                        <LevelBadge level={player.level || 1} size="sm" />
+                    <Link to={createPageUrl('Profile') + `?id=${player.id}`}>
+                      <div className="relative">
+                        <Avatar src={player.avatar_url} name={player.username} size="lg" />
+                        <div className="absolute -bottom-1 -right-1">
+                          <LevelBadge level={player.level || 1} size="sm" />
+                        </div>
                       </div>
-                    </div>
+                    </Link>
 
-                    <div className={cn("flex-1", isRTL && "text-right")}>
+                    <Link to={createPageUrl('Profile') + `?id=${player.id}`} className={cn("flex-1", isRTL && "text-right")}>
                       <p className="font-semibold text-gray-900">{player.username}</p>
                       {player.bio && (
                         <p className="text-sm text-gray-500 line-clamp-1">{player.bio}</p>
@@ -161,7 +165,7 @@ export default function FindFriends() {
                           </Badge>
                         ))}
                       </div>
-                    </div>
+                    </Link>
 
                     {status === 'none' && (
                       <Button
