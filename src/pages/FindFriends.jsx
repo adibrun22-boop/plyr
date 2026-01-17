@@ -52,7 +52,7 @@ export default function FindFriends() {
         title_he: `${currentPlayer.username} שלח לך בקשת חברות`,
         message_en: 'Check your friend requests',
         message_he: 'בדוק את בקשות החברות שלך',
-        link: '/friend-requests',
+        link: '?page=FriendRequests',
         related_id: currentPlayer.id,
       });
     },

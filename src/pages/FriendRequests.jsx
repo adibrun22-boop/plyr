@@ -53,7 +53,7 @@ export default function FriendRequests() {
         title_he: `${currentPlayer.username} אישר את בקשת החברות שלך`,
         message_en: 'You are now friends!',
         message_he: 'אתם חברים עכשיו!',
-        link: '/profile',
+        link: '?page=Profile',
       });
     },
     onSuccess: () => {
