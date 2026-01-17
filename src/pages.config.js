@@ -10,6 +10,8 @@ import Settings from './pages/Settings';
 import Notifications from './pages/Notifications';
 import EditProfile from './pages/EditProfile';
 import Achievements from './pages/Achievements';
+import FindFriends from './pages/FindFriends';
+import FriendRequests from './pages/FriendRequests';
 import __Layout from './Layout.jsx';
 
 
@@ -26,6 +28,8 @@ export const PAGES = {
     "Notifications": Notifications,
     "EditProfile": EditProfile,
     "Achievements": Achievements,
+    "FindFriends": FindFriends,
+    "FriendRequests": FriendRequests,
 }
 
 export const pagesConfig = {

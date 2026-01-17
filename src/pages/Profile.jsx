@@ -9,7 +9,8 @@ import {
   Trophy,
   Calendar,
   Users,
-  ChevronRight
+  ChevronRight,
+  UserPlus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -149,6 +150,34 @@ export default function Profile() {
       <div className="mb-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-3">{t('profile.ratings')}</h2>
         <RatingsCard player={player} />
+      </div>
+
+      {/* Friends */}
+      <div className="mb-6">
+        <div className={cn("flex items-center justify-between mb-3", isRTL && "flex-row-reverse")}>
+          <h2 className="text-lg font-semibold text-gray-900">{t('profile.friends')}</h2>
+          <div className={cn("flex gap-2", isRTL && "flex-row-reverse")}>
+            <Link to={createPageUrl('FriendRequests')}>
+              <Button size="sm" variant="outline" className="gap-2">
+                <Users className="w-4 h-4" />
+                {language === 'he' ? 'בקשות' : 'Requests'}
+              </Button>
+            </Link>
+            <Link to={createPageUrl('FindFriends')}>
+              <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 gap-2">
+                <UserPlus className="w-4 h-4" />
+                {t('profile.findFriends')}
+              </Button>
+            </Link>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-xl p-4 border border-gray-100">
+          <div className="text-center py-2">
+            <p className="text-2xl font-bold text-gray-900">{player.friends?.length || 0}</p>
+            <p className="text-sm text-gray-500">{t('profile.friends')}</p>
+          </div>
+        </div>
       </div>
 
       {/* Achievements */}

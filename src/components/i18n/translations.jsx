@@ -90,6 +90,15 @@ export const translations = {
       friendRequestSent: "Friend Request Sent",
       acceptRequest: "Accept Request",
       declineRequest: "Decline",
+      findFriends: "Find Friends",
+      friendRequests: "Friend Requests",
+      sent: "Sent",
+      received: "Received",
+      noFriendRequests: "No friend requests",
+      searchPlayers: "Search players...",
+      sendRequest: "Send Request",
+      cancelRequest: "Cancel Request",
+      noPlayersFound: "No players found",
     },
     // Events
     events: {
@@ -345,6 +354,15 @@ export const translations = {
       friendRequestSent: "בקשת חברות נשלחה",
       acceptRequest: "קבל בקשה",
       declineRequest: "דחה",
+      findFriends: "חפש חברים",
+      friendRequests: "בקשות חברות",
+      sent: "נשלחו",
+      received: "התקבלו",
+      noFriendRequests: "אין בקשות חברות",
+      searchPlayers: "חפש שחקנים...",
+      sendRequest: "שלח בקשה",
+      cancelRequest: "בטל בקשה",
+      noPlayersFound: "לא נמצאו שחקנים",
     },
     // Events
     events: {
