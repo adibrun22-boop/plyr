@@ -14,8 +14,11 @@ import {
   Check,
   X,
   Play,
-  Crown
+  Crown,
+  MessageCircle,
+  Send
 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -45,6 +48,8 @@ export default function EventDetails() {
   const { t, isRTL, language } = useLanguage();
   const queryClient = useQueryClient();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [commentText, setCommentText] = useState('');
   
   const urlParams = new URLSearchParams(window.location.search);
   const eventId = urlParams.get('id');
@@ -78,6 +83,12 @@ export default function EventDetails() {
       return allPlayers.filter(p => event.participants.includes(p.id));
     },
     enabled: !!event?.participants?.length,
+  });
+
+  const { data: comments = [] } = useQuery({
+    queryKey: ['eventComments', eventId],
+    queryFn: () => base44.entities.Comment.filter({ event_id: eventId }, '-created_date', 100),
+    enabled: !!eventId,
   });
 
   const isOrganizer = currentPlayer?.id === event?.organizer_id;
@@ -124,6 +135,22 @@ export default function EventDetails() {
     },
     onSuccess: () => {
       window.location.href = createPageUrl('PostGame') + `?eventId=${event.id}`;
+    },
+  });
+
+  const commentMutation = useMutation({
+    mutationFn: async (content) => {
+      return base44.entities.Comment.create({
+        event_id: eventId,
+        player_id: currentPlayer.id,
+        player_name: currentPlayer.username,
+        player_avatar: currentPlayer.avatar_url,
+        content
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['eventComments', eventId] });
+      setCommentText('');
     },
   });
 
@@ -298,6 +325,89 @@ export default function EventDetails() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Comments Section */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6 overflow-hidden">
+          <button
+            onClick={() => setShowComments(!showComments)}
+            className={cn("w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors", isRTL && "flex-row-reverse")}
+          >
+            <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+              <MessageCircle className="w-5 h-5 text-gray-600" />
+              <h3 className="font-semibold">{t('feed.comments')}</h3>
+              <span className="text-sm text-gray-500">({comments.length})</span>
+            </div>
+            <ChevronLeft className={cn("w-5 h-5 text-gray-400 transition-transform", showComments && "-rotate-90", isRTL && "rotate-180")} />
+          </button>
+
+          {showComments && (
+            <div className="px-4 pb-4 border-t border-gray-100">
+              {/* Comment Input */}
+              {isParticipant && (
+                <div className={cn("flex items-center gap-2 mt-4 mb-4", isRTL && "flex-row-reverse")}>
+                  <Avatar 
+                    src={currentPlayer?.avatar_url} 
+                    name={currentPlayer?.username} 
+                    size="sm"
+                  />
+                  <div className="flex-1 relative">
+                    <Input
+                      value={commentText}
+                      onChange={(e) => setCommentText(e.target.value)}
+                      placeholder={t('feed.writeComment')}
+                      className={cn("pr-10", isRTL && "pl-10 pr-3")}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && commentText.trim()) {
+                          commentMutation.mutate(commentText.trim());
+                        }
+                      }}
+                    />
+                    <button
+                      onClick={() => {
+                        if (commentText.trim()) {
+                          commentMutation.mutate(commentText.trim());
+                        }
+                      }}
+                      disabled={!commentText.trim() || commentMutation.isPending}
+                      className={cn(
+                        "absolute top-1/2 -translate-y-1/2 text-emerald-600 disabled:text-gray-300",
+                        isRTL ? "left-2" : "right-2"
+                      )}
+                    >
+                      <Send className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Comments List */}
+              {comments.length === 0 ? (
+                <p className="text-center text-sm text-gray-400 py-4">{t('feed.noComments')}</p>
+              ) : (
+                <div className="space-y-3">
+                  {comments.map((comment) => (
+                    <div key={comment.id} className={cn("flex items-start gap-2", isRTL && "flex-row-reverse text-right")}>
+                      <Avatar 
+                        src={comment.player_avatar} 
+                        name={comment.player_name} 
+                        size="sm"
+                      />
+                      <div className="flex-1">
+                        <div className="bg-gray-100 rounded-2xl px-3 py-2">
+                          <span className="font-medium text-sm">{comment.player_name}</span>
+                          <p className="text-sm text-gray-700 mt-0.5">{comment.content}</p>
+                        </div>
+                        <span className="text-xs text-gray-400 mt-1 block px-3">
+                          {format(new Date(comment.created_date), 'MMM d, HH:mm')}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
