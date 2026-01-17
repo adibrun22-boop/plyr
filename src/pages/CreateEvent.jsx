@@ -11,7 +11,9 @@ import {
   Check,
   Image as ImageIcon,
   X,
-  Sparkles
+  Sparkles,
+  Map as MapIcon,
+  List
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +22,8 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useLanguage } from '@/components/i18n/LanguageContext';
 import SportIcon from '@/components/common/SportIcon';
+import FieldSelectionMap from '@/components/map/FieldSelectionMap';
+import FieldsList from '@/components/map/FieldsList';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
@@ -31,12 +35,15 @@ export default function CreateEvent() {
   const [step, setStep] = useState(1);
   const [locationSearch, setLocationSearch] = useState('');
   const [isSearchingLocation, setIsSearchingLocation] = useState(false);
+  const [showFieldSelection, setShowFieldSelection] = useState(false);
+  const [fieldSelectionMode, setFieldSelectionMode] = useState('map'); // 'map' or 'list'
   const [formData, setFormData] = useState({
     title: '',
     sport_type: '',
     location_name: '',
     location_address: '',
     location_coords: null,
+    field_id: null,
     date: format(new Date(), 'yyyy-MM-dd'),
     start_time: '18:00',
     end_time: '20:00',
@@ -134,6 +141,21 @@ export default function CreateEvent() {
 
   const handleSubmit = () => {
     createEventMutation.mutate(formData);
+  };
+
+  const handleFieldSelect = (field) => {
+    setFormData(prev => ({
+      ...prev,
+      field_id: field.id,
+      location_name: language === 'he' ? field.name_he : field.name_en,
+      location_address: field.address || '',
+      location_coords: field.location_coords
+    }));
+    setShowFieldSelection(false);
+  };
+
+  const handleCreateAtField = (field) => {
+    handleFieldSelect(field);
   };
 
   return (
@@ -248,7 +270,55 @@ export default function CreateEvent() {
 
             {/* Location */}
             <div>
-              <Label>{t('events.location')}</Label>
+              <div className={cn("flex items-center justify-between mb-2", isRTL && "flex-row-reverse")}>
+                <Label>{t('events.location')}</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowFieldSelection(!showFieldSelection)}
+                  className="gap-2"
+                >
+                  <MapIcon className="w-4 h-4" />
+                  {language === 'he' ? 'בחר ממגרשים' : 'Select Field'}
+                </Button>
+              </div>
+
+              {showFieldSelection && (
+                <div className="mb-4">
+                  <div className="flex gap-2 mb-3">
+                    <Button
+                      type="button"
+                      variant={fieldSelectionMode === 'map' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setFieldSelectionMode('map')}
+                      className="gap-2"
+                    >
+                      <MapIcon className="w-4 h-4" />
+                      {language === 'he' ? 'מפה' : 'Map'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={fieldSelectionMode === 'list' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setFieldSelectionMode('list')}
+                      className="gap-2"
+                    >
+                      <List className="w-4 h-4" />
+                      {language === 'he' ? 'רשימה' : 'List'}
+                    </Button>
+                  </div>
+
+                  {fieldSelectionMode === 'map' ? (
+                    <FieldSelectionMap 
+                      onFieldSelect={handleFieldSelect}
+                      onCreateAtField={handleCreateAtField}
+                    />
+                  ) : (
+                    <FieldsList onFieldSelect={handleFieldSelect} />
+                  )}
+                </div>
+              )}
               
               {/* AI Location Search */}
               <div className={cn("flex gap-2 mt-1", isRTL && "flex-row-reverse")}>
