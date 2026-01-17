@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Heart, MessageCircle, Share2, Trophy, MoreHorizontal } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Trophy, MoreHorizontal, Send } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useLanguage } from '../i18n/LanguageContext';
 import Avatar from '../common/Avatar';
 import SportIcon from '../common/SportIcon';
@@ -10,11 +11,14 @@ import { cn } from '@/lib/utils';
 export default function FeedCard({ 
   post, 
   currentPlayerId,
+  currentPlayer,
+  comments = [],
   onLike,
   onComment 
 }) {
   const { t, language, isRTL } = useLanguage();
   const [showComments, setShowComments] = useState(false);
+  const [commentText, setCommentText] = useState('');
   
   const isLiked = post.likes?.includes(currentPlayerId);
   const content = language === 'he' ? post.content_he : post.content_en;
@@ -152,7 +156,7 @@ export default function FeedCard({
           className="flex items-center gap-2"
         >
           <MessageCircle className="w-5 h-5" />
-          <span>{post.comments_count || 0}</span>
+          <span>{comments.length}</span>
         </Button>
         
         <Button
@@ -163,6 +167,75 @@ export default function FeedCard({
           <Share2 className="w-5 h-5" />
         </Button>
       </div>
+
+      {/* Comments Section */}
+      {showComments && (
+        <div className="px-4 pb-4 border-t border-gray-100">
+          {/* Comment Input */}
+          <div className={cn("flex items-center gap-2 mt-4 mb-4", isRTL && "flex-row-reverse")}>
+            <Avatar 
+              src={currentPlayer?.avatar_url} 
+              name={currentPlayer?.username} 
+              size="sm"
+            />
+            <div className="flex-1 relative">
+              <Input
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder={t('feed.writeComment')}
+                className={cn("pr-10", isRTL && "pl-10 pr-3")}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && commentText.trim()) {
+                    onComment && onComment(post.id, commentText.trim());
+                    setCommentText('');
+                  }
+                }}
+              />
+              <button
+                onClick={() => {
+                  if (commentText.trim()) {
+                    onComment && onComment(post.id, commentText.trim());
+                    setCommentText('');
+                  }
+                }}
+                disabled={!commentText.trim()}
+                className={cn(
+                  "absolute top-1/2 -translate-y-1/2 text-emerald-600 disabled:text-gray-300",
+                  isRTL ? "left-2" : "right-2"
+                )}
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Comments List */}
+          {comments.length === 0 ? (
+            <p className="text-center text-sm text-gray-400 py-4">{t('feed.noComments')}</p>
+          ) : (
+            <div className="space-y-3">
+              {comments.map((comment) => (
+                <div key={comment.id} className={cn("flex items-start gap-2", isRTL && "flex-row-reverse text-right")}>
+                  <Avatar 
+                    src={comment.player_avatar} 
+                    name={comment.player_name} 
+                    size="sm"
+                  />
+                  <div className="flex-1">
+                    <div className="bg-gray-100 rounded-2xl px-3 py-2">
+                      <span className="font-medium text-sm">{comment.player_name}</span>
+                      <p className="text-sm text-gray-700 mt-0.5">{comment.content}</p>
+                    </div>
+                    <span className="text-xs text-gray-400 mt-1 block px-3">
+                      {formatDistanceToNow(new Date(comment.created_date), { addSuffix: true })}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -32,6 +32,11 @@ export default function Feed() {
     queryFn: () => base44.entities.FeedPost.list('-created_date', 50),
   });
 
+  const { data: allComments = [] } = useQuery({
+    queryKey: ['allComments'],
+    queryFn: () => base44.entities.Comment.list('-created_date', 200),
+  });
+
   const likeMutation = useMutation({
     mutationFn: async (postId) => {
       const post = posts.find(p => p.id === postId);
@@ -45,6 +50,27 @@ export default function Feed() {
       return base44.entities.FeedPost.update(postId, { likes: newLikes });
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['feedPosts'] }),
+  });
+
+  const commentMutation = useMutation({
+    mutationFn: async ({ postId, content }) => {
+      await base44.entities.Comment.create({
+        post_id: postId,
+        player_id: currentPlayer.id,
+        player_name: currentPlayer.username,
+        player_avatar: currentPlayer.avatar_url,
+        content
+      });
+      
+      const post = posts.find(p => p.id === postId);
+      await base44.entities.FeedPost.update(postId, { 
+        comments_count: (post.comments_count || 0) + 1 
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['feedPosts'] });
+      queryClient.invalidateQueries({ queryKey: ['allComments'] });
+    },
   });
 
   return (
@@ -85,7 +111,10 @@ export default function Feed() {
               key={post.id}
               post={post}
               currentPlayerId={currentPlayer?.id}
+              currentPlayer={currentPlayer}
+              comments={allComments.filter(c => c.post_id === post.id)}
               onLike={(postId) => likeMutation.mutate(postId)}
+              onComment={(postId, content) => commentMutation.mutate({ postId, content })}
             />
           ))}
         </div>
