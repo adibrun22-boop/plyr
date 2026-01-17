@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
@@ -10,11 +10,14 @@ import {
   Calendar,
   Users,
   ChevronRight,
-  UserPlus
+  UserPlus,
+  BarChart3,
+  Image
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLanguage } from '@/components/i18n/LanguageContext';
 import Avatar from '@/components/common/Avatar';
 import LevelBadge from '@/components/common/LevelBadge';
@@ -128,6 +131,22 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* Quick Stats */}
+        <div className="mt-6 grid grid-cols-3 gap-4">
+          <div className="text-center">
+            <p className="text-3xl font-bold text-white">{player.total_points || 0}</p>
+            <p className="text-white/70 text-xs mt-1">{t('profile.points')}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-3xl font-bold text-white">{player.games_played || 0}</p>
+            <p className="text-white/70 text-xs mt-1">{t('profile.gamesPlayed')}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-3xl font-bold text-white">{player.friends?.length || 0}</p>
+            <p className="text-white/70 text-xs mt-1">{t('profile.friends')}</p>
+          </div>
+        </div>
+
         {/* Edit Profile Button */}
         <Link to={createPageUrl('EditProfile')}>
           <Button 
@@ -140,105 +159,143 @@ export default function Profile() {
         </Link>
       </div>
 
-      {/* Stats */}
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">{t('profile.stats')}</h2>
-        <StatsCard player={player} />
-      </div>
+      {/* Tabs */}
+      <Tabs defaultValue="social" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsTrigger value="social" className="gap-2">
+            <Image className="w-4 h-4" />
+            {language === 'he' ? 'פרופיל' : 'Profile'}
+          </TabsTrigger>
+          <TabsTrigger value="stats" className="gap-2">
+            <BarChart3 className="w-4 h-4" />
+            {language === 'he' ? 'נתונים' : 'Stats'}
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Ratings */}
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">{t('profile.ratings')}</h2>
-        <RatingsCard player={player} />
-      </div>
-
-      {/* Friends */}
-      <div className="mb-6">
-        <div className={cn("flex items-center justify-between mb-3", isRTL && "flex-row-reverse")}>
-          <h2 className="text-lg font-semibold text-gray-900">{t('profile.friends')}</h2>
-          <div className={cn("flex gap-2", isRTL && "flex-row-reverse")}>
-            <Link to={createPageUrl('FriendRequests')}>
-              <Button size="sm" variant="outline" className="gap-2">
-                <Users className="w-4 h-4" />
-                {language === 'he' ? 'בקשות' : 'Requests'}
-              </Button>
-            </Link>
-            <Link to={createPageUrl('FindFriends')}>
-              <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 gap-2">
-                <UserPlus className="w-4 h-4" />
-                {t('profile.findFriends')}
-              </Button>
-            </Link>
+        {/* Social Tab */}
+        <TabsContent value="social" className="space-y-6">
+          {/* Friends Section */}
+          <div>
+            <div className={cn("flex items-center justify-between mb-3", isRTL && "flex-row-reverse")}>
+              <h2 className="text-lg font-semibold text-gray-900">{t('profile.friends')}</h2>
+              <div className={cn("flex gap-2", isRTL && "flex-row-reverse")}>
+                <Link to={createPageUrl('FriendRequests')}>
+                  <Button size="sm" variant="outline" className="gap-2">
+                    <Users className="w-4 h-4" />
+                    {language === 'he' ? 'בקשות' : 'Requests'}
+                  </Button>
+                </Link>
+                <Link to={createPageUrl('FindFriends')}>
+                  <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 gap-2">
+                    <UserPlus className="w-4 h-4" />
+                    {t('profile.findFriends')}
+                  </Button>
+                </Link>
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-xl p-4 border border-gray-100 text-center">
+              <p className="text-gray-500 text-sm">
+                {language === 'he' ? 'רשימת חברים תמומש בקרוב' : 'Friend list coming soon'}
+              </p>
+            </div>
           </div>
-        </div>
-        
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="text-center py-2">
-            <p className="text-2xl font-bold text-gray-900">{player.friends?.length || 0}</p>
-            <p className="text-sm text-gray-500">{t('profile.friends')}</p>
-          </div>
-        </div>
-      </div>
 
-      {/* Achievements */}
-      <div className="mb-6">
-        <div className={cn("flex items-center justify-between mb-3", isRTL && "flex-row-reverse")}>
-          <h2 className="text-lg font-semibold text-gray-900">{t('profile.achievements')}</h2>
-          <Link 
-            to={createPageUrl('Achievements')}
-            className="text-emerald-600 text-sm font-medium flex items-center gap-1"
-          >
-            {t('common.viewAll')}
-            <ChevronRight className={cn("w-4 h-4", isRTL && "rotate-180")} />
-          </Link>
-        </div>
-        
-        <div className="grid grid-cols-4 gap-2">
-          {SAMPLE_ACHIEVEMENTS.map(achievement => (
-            <AchievementBadge
-              key={achievement.achievement_id}
-              achievement={achievement}
-              unlocked={unlockedAchievements.includes(achievement.achievement_id) || achievement.achievement_id === 'first_game'}
-              size="sm"
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Recent Games */}
-      <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">{t('profile.history')}</h2>
-        
-        {recentGames.length === 0 ? (
-          <div className="bg-white rounded-xl p-6 text-center border border-gray-100">
-            <Calendar className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-            <p className="text-gray-500 text-sm">{t('events.noEvents')}</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {recentGames.map(game => (
+          {/* Achievements */}
+          <div>
+            <div className={cn("flex items-center justify-between mb-3", isRTL && "flex-row-reverse")}>
+              <h2 className="text-lg font-semibold text-gray-900">{t('profile.achievements')}</h2>
               <Link 
-                key={game.id}
-                to={createPageUrl('EventDetails') + `?id=${game.id}`}
-                className="block bg-white rounded-xl p-4 border border-gray-100 hover:border-emerald-200 transition-colors"
+                to={createPageUrl('Achievements')}
+                className="text-emerald-600 text-sm font-medium flex items-center gap-1"
               >
-                <div className={cn("flex items-center gap-3", isRTL && "flex-row-reverse")}>
-                  <SportIcon sport={game.sport_type} size="sm" />
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900">{game.title}</p>
-                    <p className="text-sm text-gray-500">{game.location_name}</p>
-                  </div>
-                  {game.score_team_a !== undefined && (
-                    <span className="text-lg font-bold text-gray-700">
-                      {game.score_team_a} - {game.score_team_b}
-                    </span>
-                  )}
-                </div>
+                {t('common.viewAll')}
+                <ChevronRight className={cn("w-4 h-4", isRTL && "rotate-180")} />
               </Link>
-            ))}
+            </div>
+            
+            <div className="grid grid-cols-4 gap-2">
+              {SAMPLE_ACHIEVEMENTS.map(achievement => (
+                <AchievementBadge
+                  key={achievement.achievement_id}
+                  achievement={achievement}
+                  unlocked={unlockedAchievements.includes(achievement.achievement_id) || achievement.achievement_id === 'first_game'}
+                  size="sm"
+                />
+              ))}
+            </div>
           </div>
-        )}
-      </div>
+
+          {/* Photo Grid */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">
+              {language === 'he' ? 'תמונות' : 'Photos'}
+            </h2>
+            
+            <div className="grid grid-cols-3 gap-2">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
+                  <Image className="w-8 h-8 text-gray-300" />
+                </div>
+              ))}
+            </div>
+            
+            <p className="text-center text-gray-400 text-sm mt-3">
+              {language === 'he' ? 'תמונות ממשחקים יופיעו כאן' : 'Game photos will appear here'}
+            </p>
+          </div>
+        </TabsContent>
+
+        {/* Stats Tab */}
+        <TabsContent value="stats" className="space-y-6">
+          {/* Stats Cards */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">{t('profile.stats')}</h2>
+            <StatsCard player={player} />
+          </div>
+
+          {/* Ratings */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">{t('profile.ratings')}</h2>
+            <RatingsCard player={player} />
+          </div>
+
+          {/* Recent Games */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">{t('profile.history')}</h2>
+            
+            {recentGames.length === 0 ? (
+              <div className="bg-white rounded-xl p-6 text-center border border-gray-100">
+                <Calendar className="w-10 h-10 text-gray-300 mx-auto mb-2" />
+                <p className="text-gray-500 text-sm">{t('events.noEvents')}</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {recentGames.map(game => (
+                  <Link 
+                    key={game.id}
+                    to={createPageUrl('EventDetails') + `?id=${game.id}`}
+                    className="block bg-white rounded-xl p-4 border border-gray-100 hover:border-emerald-200 transition-colors"
+                  >
+                    <div className={cn("flex items-center gap-3", isRTL && "flex-row-reverse")}>
+                      <SportIcon sport={game.sport_type} size="sm" />
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-900">{game.title}</p>
+                        <p className="text-sm text-gray-500">{game.location_name}</p>
+                      </div>
+                      {game.score_team_a !== undefined && (
+                        <span className="text-lg font-bold text-gray-700">
+                          {game.score_team_a} - {game.score_team_b}
+                        </span>
+                      )}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
