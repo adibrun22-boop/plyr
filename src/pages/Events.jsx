@@ -170,7 +170,7 @@ export default function Events() {
                     className="w-full gap-2"
                   >
                     <X className="w-4 h-4" />
-                    {language === 'he' ? 'נקה סינון' : 'Clear Filters'}
+                    {isRTL ? 'נקה סינון' : 'Clear Filters'}
                   </Button>
                 )}
               </div>
