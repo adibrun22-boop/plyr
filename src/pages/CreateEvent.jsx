@@ -10,7 +10,8 @@ import {
   Users,
   Check,
   Image as ImageIcon,
-  X
+  X,
+  Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,11 +29,14 @@ const SKILL_LEVELS = ['beginner', 'intermediate', 'advanced', 'all'];
 export default function CreateEvent() {
   const { t, isRTL, language } = useLanguage();
   const [step, setStep] = useState(1);
+  const [locationSearch, setLocationSearch] = useState('');
+  const [isSearchingLocation, setIsSearchingLocation] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     sport_type: '',
     location_name: '',
     location_address: '',
+    location_coords: null,
     date: format(new Date(), 'yyyy-MM-dd'),
     start_time: '18:00',
     end_time: '20:00',
@@ -85,6 +89,41 @@ export default function CreateEvent() {
 
   const updateField = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleAILocationSearch = async () => {
+    if (!locationSearch.trim()) return;
+    
+    setIsSearchingLocation(true);
+    try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Extract location information from this text: "${locationSearch}". 
+        Return a JSON object with: name (location name), address (full address), lat (latitude), lng (longitude).
+        If you can't determine exact coordinates, use approximate coordinates for the area.`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            address: { type: "string" },
+            lat: { type: "number" },
+            lng: { type: "number" }
+          }
+        }
+      });
+
+      setFormData(prev => ({
+        ...prev,
+        location_name: result.name || locationSearch,
+        location_address: result.address || '',
+        location_coords: (result.lat && result.lng) ? { lat: result.lat, lng: result.lng } : null
+      }));
+      setLocationSearch('');
+    } catch (error) {
+      console.error('Location search failed:', error);
+    } finally {
+      setIsSearchingLocation(false);
+    }
   };
 
   const canProceed = () => {
@@ -210,7 +249,40 @@ export default function CreateEvent() {
             {/* Location */}
             <div>
               <Label>{t('events.location')}</Label>
-              <div className="relative mt-1">
+              
+              {/* AI Location Search */}
+              <div className={cn("flex gap-2 mt-1", isRTL && "flex-row-reverse")}>
+                <div className="flex-1 relative">
+                  <Sparkles className={cn("absolute top-3 w-5 h-5 text-emerald-500", isRTL ? "right-3" : "left-3")} />
+                  <Input
+                    value={locationSearch}
+                    onChange={(e) => setLocationSearch(e.target.value)}
+                    placeholder={language === 'he' ? 'תאר את המיקום...' : 'Describe location...'}
+                    className={cn(isRTL ? "pr-10" : "pl-10")}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAILocationSearch();
+                      }
+                    }}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  onClick={handleAILocationSearch}
+                  disabled={!locationSearch.trim() || isSearchingLocation}
+                  className="bg-emerald-600 hover:bg-emerald-700"
+                >
+                  {isSearchingLocation ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Sparkles className="w-5 h-5" />
+                  )}
+                </Button>
+              </div>
+
+              {/* Manual Location Entry */}
+              <div className="relative mt-2">
                 <MapPin className={cn("absolute top-3 w-5 h-5 text-gray-400", isRTL ? "right-3" : "left-3")} />
                 <Input
                   value={formData.location_name}
