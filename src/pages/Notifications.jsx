@@ -73,7 +73,15 @@ export default function Notifications() {
       markAsReadMutation.mutate(notification.id);
     }
     if (notification.link) {
-      window.location.href = notification.link;
+      // Navigate using createPageUrl if it's a page link
+      const pageName = notification.link.replace('?page=', '');
+      if (notification.link.startsWith('?page=')) {
+        window.location.href = createPageUrl(pageName);
+      } else if (notification.link.startsWith('/')) {
+        window.location.href = notification.link;
+      } else {
+        window.location.href = createPageUrl(notification.link);
+      }
     }
   };
 
