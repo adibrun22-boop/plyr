@@ -27,9 +27,14 @@ function LayoutContent({ children, currentPageName }) {
   const { data: notifications = [] } = useQuery({
     queryKey: ['notifications-unread'],
     queryFn: async () => {
-      const player = await base44.entities.Player.filter({ user_id: (await base44.auth.me()).id });
-      if (player.length === 0) return [];
-      return base44.entities.Notification.filter({ player_id: player[0].id, is_read: false });
+      try {
+        const user = await base44.auth.me();
+        const player = await base44.entities.Player.filter({ user_id: user.id });
+        if (player.length === 0) return [];
+        return base44.entities.Notification.filter({ player_id: player[0].id, is_read: false });
+      } catch {
+        return [];
+      }
     },
     refetchInterval: 30000,
   });
