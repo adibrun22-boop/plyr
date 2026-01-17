@@ -60,8 +60,8 @@ export default function Profile() {
   const { data: viewedPlayer, isLoading: isLoadingViewed } = useQuery({
     queryKey: ['viewedPlayer', viewingPlayerId],
     queryFn: async () => {
-      const allPlayers = await base44.entities.Player.list();
-      return allPlayers.find(p => p.id === viewingPlayerId);
+      const players = await base44.entities.Player.filter({ id: viewingPlayerId });
+      return players[0];
     },
     enabled: !!viewingPlayerId,
   });

@@ -58,9 +58,13 @@ export default function EditProfile() {
   }, [player]);
 
   const updateMutation = useMutation({
-    mutationFn: (data) => base44.entities.Player.update(player.id, data),
+    mutationFn: async (data) => {
+      await base44.entities.Player.update(player.id, data);
+    },
     onSuccess: () => {
-      window.location.href = createPageUrl('Profile');
+      setTimeout(() => {
+        window.location.href = createPageUrl('Profile');
+      }, 500);
     }
   });
 
