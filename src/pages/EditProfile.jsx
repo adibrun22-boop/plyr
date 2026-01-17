@@ -152,7 +152,11 @@ export default function EditProfile() {
               )}
             </div>
             <div className="absolute bottom-0 right-0 w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white">
-              <Upload className="w-5 h-5 text-white" />
+              {uploading ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Upload className="w-5 h-5 text-white" />
+              )}
             </div>
             <input 
               type="file" 

@@ -57,17 +57,17 @@ export default function Profile() {
     enabled: !!user?.id,
   });
 
-  const { data: allPlayers = [] } = useQuery({
-    queryKey: ['allPlayers'],
-    queryFn: () => base44.entities.Player.list(),
+  const { data: viewedPlayer, isLoading: isLoadingViewed } = useQuery({
+    queryKey: ['viewedPlayer', viewingPlayerId],
+    queryFn: async () => {
+      const allPlayers = await base44.entities.Player.list();
+      return allPlayers.find(p => p.id === viewingPlayerId);
+    },
     enabled: !!viewingPlayerId,
   });
 
-  const player = viewingPlayerId 
-    ? allPlayers.find(p => p.id === viewingPlayerId) 
-    : currentUserPlayer;
-
-  const isLoading = viewingPlayerId ? allPlayers.length === 0 : !currentUserPlayer;
+  const player = viewingPlayerId ? viewedPlayer : currentUserPlayer;
+  const isLoading = viewingPlayerId ? isLoadingViewed : !currentUserPlayer;
 
   const isOwnProfile = !viewingPlayerId || player?.id === currentUserPlayer?.id;
 
