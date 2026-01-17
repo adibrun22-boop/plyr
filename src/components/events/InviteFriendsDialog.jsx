@@ -46,7 +46,7 @@ export default function InviteFriendsDialog({ event, currentPlayer, open, onOpen
           title_he: `${currentPlayer.username} הזמין אותך למשחק`,
           message_en: event.title,
           message_he: event.title,
-          link: `/event-details?id=${event.id}`,
+          link: `?page=EventDetails&id=${event.id}`,
           related_id: event.id,
         });
       }
