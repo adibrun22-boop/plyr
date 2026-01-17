@@ -73,14 +73,20 @@ export default function Notifications() {
       markAsReadMutation.mutate(notification.id);
     }
     if (notification.link) {
-      // Navigate using createPageUrl if it's a page link
-      const pageName = notification.link.replace('?page=', '');
-      if (notification.link.startsWith('?page=')) {
+      // Map old links to new page names
+      const linkMap = {
+        '/friend-requests': 'FriendRequests',
+        '/profile': 'Profile',
+        '/events': 'Events',
+      };
+      
+      if (linkMap[notification.link]) {
+        window.location.href = createPageUrl(linkMap[notification.link]);
+      } else if (notification.link.startsWith('?page=')) {
+        const pageName = notification.link.replace('?page=', '');
         window.location.href = createPageUrl(pageName);
-      } else if (notification.link.startsWith('/')) {
-        window.location.href = notification.link;
       } else {
-        window.location.href = createPageUrl(notification.link);
+        window.location.href = notification.link;
       }
     }
   };
