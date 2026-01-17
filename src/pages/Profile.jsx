@@ -25,6 +25,7 @@ import SportIcon from '@/components/common/SportIcon';
 import StatsCard from '@/components/profile/StatsCard';
 import RatingsCard from '@/components/profile/RatingsCard';
 import AchievementBadge from '@/components/profile/AchievementBadge';
+import FriendsList from '@/components/profile/FriendsList';
 import { cn } from '@/lib/utils';
 
 // Sample achievements data
@@ -218,11 +219,7 @@ export default function Profile() {
               )}
             </div>
             
-            <div className="bg-white rounded-xl p-4 border border-gray-100 text-center">
-              <p className="text-gray-500 text-sm">
-                {language === 'he' ? 'רשימת חברים תמומש בקרוב' : 'Friend list coming soon'}
-              </p>
-            </div>
+            <FriendsList currentPlayer={player} />
           </div>
 
           {/* Achievements */}
