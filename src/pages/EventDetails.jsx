@@ -16,7 +16,8 @@ import {
   Play,
   Crown,
   MessageCircle,
-  Send
+  Send,
+  UserPlus
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,7 @@ import {
 import { useLanguage } from '@/components/i18n/LanguageContext';
 import SportIcon from '@/components/common/SportIcon';
 import Avatar from '@/components/common/Avatar';
+import InviteFriendsDialog from '@/components/events/InviteFriendsDialog';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
@@ -50,6 +52,7 @@ export default function EventDetails() {
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
+  const [showInviteDialog, setShowInviteDialog] = useState(false);
   
   const urlParams = new URLSearchParams(window.location.search);
   const eventId = urlParams.get('id');
@@ -93,6 +96,8 @@ export default function EventDetails() {
 
   const isOrganizer = currentPlayer?.id === event?.organizer_id;
   const isParticipant = event?.participants?.includes(currentPlayer?.id);
+  const isInvited = event?.invited_players?.includes(currentPlayer?.id);
+  const canJoin = event?.is_public || isInvited;
   const spotsLeft = event ? event.max_players - (event.participants?.length || 0) : 0;
   const isFull = spotsLeft <= 0;
 
@@ -101,7 +106,10 @@ export default function EventDetails() {
       const updatedParticipants = [...(event.participants || []), currentPlayer.id];
       return base44.entities.Event.update(event.id, { participants: updatedParticipants });
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['event', eventId] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['event', eventId] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
   });
 
   const leaveMutation = useMutation({
@@ -303,7 +311,19 @@ export default function EventDetails() {
 
         {/* Participants */}
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
-          <h3 className="font-semibold mb-4">{t('events.participants')} ({participants.length})</h3>
+          <div className={cn("flex items-center justify-between mb-4", isRTL && "flex-row-reverse")}>
+            <h3 className="font-semibold">{t('events.participants')} ({participants.length})</h3>
+            {isOrganizer && !event.is_public && event.status === 'upcoming' && (
+              <Button
+                size="sm"
+                onClick={() => setShowInviteDialog(true)}
+                className="bg-emerald-600 hover:bg-emerald-700 gap-2"
+              >
+                <UserPlus className="w-4 h-4" />
+                {language === 'he' ? 'הזמן' : 'Invite'}
+              </Button>
+            )}
+          </div>
           <div className="space-y-3">
             {participants.map(player => (
               <div 
@@ -434,13 +454,19 @@ export default function EventDetails() {
               </Button>
             )}
             {!isOrganizer && !isParticipant && event.status === 'upcoming' && (
-              <Button
-                onClick={() => joinMutation.mutate()}
-                disabled={isFull || joinMutation.isPending}
-                className="w-full h-12 bg-emerald-600 hover:bg-emerald-700"
-              >
-                {t('events.joinEvent')}
-              </Button>
+              canJoin ? (
+                <Button
+                  onClick={() => joinMutation.mutate()}
+                  disabled={isFull || joinMutation.isPending}
+                  className="w-full h-12 bg-emerald-600 hover:bg-emerald-700"
+                >
+                  {t('events.joinEvent')}
+                </Button>
+              ) : (
+                <div className="w-full h-12 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500 font-medium">
+                  {language === 'he' ? 'אירוע פרטי - נדרשת הזמנה' : 'Private Event - Invitation Required'}
+                </div>
+              )
             )}
             {!isOrganizer && isParticipant && event.status === 'upcoming' && (
               <div className="flex gap-3">
@@ -484,6 +510,16 @@ export default function EventDetails() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Invite Friends Dialog */}
+      {currentPlayer && (
+        <InviteFriendsDialog
+          event={event}
+          currentPlayer={currentPlayer}
+          open={showInviteDialog}
+          onOpenChange={setShowInviteDialog}
+        />
+      )}
     </div>
   );
 }
