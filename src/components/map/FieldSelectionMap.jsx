@@ -46,15 +46,20 @@ function FieldCard({ field, onSelect, onCreateEvent }) {
         </div>
       </div>
 
-      {field.supported_sports && (
-        <div className={cn("flex flex-wrap gap-1 mb-3", isRTL && "flex-row-reverse")}>
-          {field.supported_sports.map(sport => (
-            <Badge key={sport} variant="outline" className="text-xs">
-              {sport}
-            </Badge>
-          ))}
-        </div>
-      )}
+      <div className={cn("flex flex-wrap gap-1 mb-3", isRTL && "flex-row-reverse")}>
+        {field.surface_type && (
+          <Badge variant="outline" className="text-xs">
+            {language === 'he' 
+              ? field.surface_type === 'synthetic' ? 'סינטטי' : field.surface_type === 'asphalt' ? 'אספלט' : 'דשא'
+              : field.surface_type}
+          </Badge>
+        )}
+        {field.supported_sports?.map(sport => (
+          <Badge key={sport} variant="outline" className="text-xs">
+            {sport}
+          </Badge>
+        ))}
+      </div>
 
       {upcomingEvents.length > 0 && (
         <div className="mb-3">

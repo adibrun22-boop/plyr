@@ -7,12 +7,20 @@ import { MapPin, Calendar } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { cn } from '@/lib/utils';
 
-export default function FieldsList({ onFieldSelect }) {
+export default function FieldsList({ onFieldSelect, filters = {} }) {
   const { language, isRTL } = useLanguage();
 
-  const { data: fields = [] } = useQuery({
+  const { data: allFields = [] } = useQuery({
     queryKey: ['sportsFields'],
     queryFn: () => base44.entities.SportsField.list(),
+  });
+
+  // Apply filters
+  const fields = allFields.filter(field => {
+    if (filters.surfaceType && filters.surfaceType !== 'all' && field.surface_type !== filters.surfaceType) {
+      return false;
+    }
+    return true;
   });
 
   if (fields.length === 0) {
@@ -47,15 +55,20 @@ export default function FieldsList({ onFieldSelect }) {
                 {language === 'he' ? field.city_he : field.city_en}
               </p>
               
-              {field.supported_sports && (
-                <div className={cn("flex flex-wrap gap-1 mt-2", isRTL && "flex-row-reverse")}>
-                  {field.supported_sports.map(sport => (
-                    <Badge key={sport} variant="outline" className="text-xs">
-                      {sport}
-                    </Badge>
-                  ))}
-                </div>
-              )}
+              <div className={cn("flex flex-wrap gap-1 mt-2", isRTL && "flex-row-reverse")}>
+                {field.surface_type && (
+                  <Badge variant="outline" className="text-xs">
+                    {language === 'he' 
+                      ? field.surface_type === 'synthetic' ? 'סינטטי' : field.surface_type === 'asphalt' ? 'אספלט' : 'דשא'
+                      : field.surface_type}
+                  </Badge>
+                )}
+                {field.supported_sports?.map(sport => (
+                  <Badge key={sport} variant="outline" className="text-xs">
+                    {sport}
+                  </Badge>
+                ))}
+              </div>
             </div>
           </div>
         </button>
