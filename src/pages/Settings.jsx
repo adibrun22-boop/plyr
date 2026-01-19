@@ -10,8 +10,9 @@ import {
   Shield,
   LogOut,
   Trash2,
-  Moon,
-  User
+  FileText,
+  Mail,
+  Info
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -221,6 +222,48 @@ export default function Settings() {
                 }
               />
             </div>
+          </div>
+        </div>
+
+        {/* Legal & Support */}
+        <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 mb-6">
+          <div className={cn("p-4 flex items-center gap-3", isRTL && "flex-row-reverse")}>
+            <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+              <Info className="w-5 h-5 text-gray-600" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-medium">{language === 'he' ? 'מידע ותמיכה' : 'Info & Support'}</h3>
+            </div>
+          </div>
+          <Separator />
+          <div className="p-2 space-y-1">
+            <a href={createPageUrl('ContactUs')}>
+              <button className={cn("w-full p-3 rounded-xl hover:bg-gray-50 flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                <div className={cn("flex items-center gap-3", isRTL && "flex-row-reverse")}>
+                  <Mail className="w-5 h-5 text-gray-400" />
+                  <span>{t('legal.contactUs')}</span>
+                </div>
+                <ChevronRight className={cn("w-5 h-5 text-gray-400", isRTL && "rotate-180")} />
+              </button>
+            </a>
+            <a href={createPageUrl('TermsOfUse')}>
+              <button className={cn("w-full p-3 rounded-xl hover:bg-gray-50 flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                <div className={cn("flex items-center gap-3", isRTL && "flex-row-reverse")}>
+                  <FileText className="w-5 h-5 text-gray-400" />
+                  <span>{t('legal.termsOfUse')}</span>
+                </div>
+                <ChevronRight className={cn("w-5 h-5 text-gray-400", isRTL && "rotate-180")} />
+              </button>
+            </a>
+            <a href={createPageUrl('PrivacyPolicy')}>
+              <button className={cn("w-full p-3 rounded-xl hover:bg-gray-50 flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                <div className={cn("flex items-center gap-3", isRTL && "flex-row-reverse")}>
+                  <FileText className="w-5 h-5 text-gray-400" />
+                  <span>{t('legal.privacyPolicy')}</span>
+                </div>
+                <ChevronRight className={cn("w-5 h-5 text-gray-400", isRTL && "rotate-180")} />
+              </button>
+            </a>
           </div>
         </div>
 
