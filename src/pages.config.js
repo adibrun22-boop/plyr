@@ -22,6 +22,10 @@ import TeamDetails from './pages/TeamDetails';
 import Leagues from './pages/Leagues';
 import CreateLeague from './pages/CreateLeague';
 import LeagueDetails from './pages/LeagueDetails';
+import CoachDashboard from './pages/CoachDashboard';
+import CreateTrainingProgram from './pages/CreateTrainingProgram';
+import TrainingPrograms from './pages/TrainingPrograms';
+import TrainingProgramDetails from './pages/TrainingProgramDetails';
 import __Layout from './Layout.jsx';
 
 
@@ -50,6 +54,10 @@ export const PAGES = {
     "Leagues": Leagues,
     "CreateLeague": CreateLeague,
     "LeagueDetails": LeagueDetails,
+    "CoachDashboard": CoachDashboard,
+    "CreateTrainingProgram": CreateTrainingProgram,
+    "TrainingPrograms": TrainingPrograms,
+    "TrainingProgramDetails": TrainingProgramDetails,
 }
 
 export const pagesConfig = {
