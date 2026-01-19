@@ -26,6 +26,7 @@ import Teams from './pages/Teams';
 import TermsOfUse from './pages/TermsOfUse';
 import TrainingProgramDetails from './pages/TrainingProgramDetails';
 import TrainingPrograms from './pages/TrainingPrograms';
+import EditTrainingProgram from './pages/EditTrainingProgram';
 import __Layout from './Layout.jsx';
 
 
@@ -58,6 +59,7 @@ export const PAGES = {
     "TermsOfUse": TermsOfUse,
     "TrainingProgramDetails": TrainingProgramDetails,
     "TrainingPrograms": TrainingPrograms,
+    "EditTrainingProgram": EditTrainingProgram,
 }
 
 export const pagesConfig = {

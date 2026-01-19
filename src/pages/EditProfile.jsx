@@ -28,7 +28,13 @@ export default function EditProfile() {
     avatar_url: '',
     profile_type: 'player',
     sports: [],
-    skill_levels: {}
+    skill_levels: {},
+    coach_experience_years: 0,
+    coach_specializations: [],
+    coach_certifications: [],
+    business_name: '',
+    business_type: '',
+    business_description: ''
   });
   const [uploading, setUploading] = useState(false);
 
@@ -54,7 +60,13 @@ export default function EditProfile() {
         avatar_url: player.avatar_url || '',
         profile_type: player.profile_type || 'player',
         sports: player.sports || [],
-        skill_levels: player.skill_levels || {}
+        skill_levels: player.skill_levels || {},
+        coach_experience_years: player.coach_experience_years || 0,
+        coach_specializations: player.coach_specializations || [],
+        coach_certifications: player.coach_certifications || [],
+        business_name: player.business_name || '',
+        business_type: player.business_type || '',
+        business_description: player.business_description || ''
       });
     }
   }, [player]);
@@ -279,6 +291,148 @@ export default function EditProfile() {
             </div>
           )}
         </div>
+
+        {/* Coach Fields */}
+        {formData.profile_type === 'coach' && (
+          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-4">
+            <Label className="text-base">
+              {language === 'he' ? 'פרטים מקצועיים' : 'Professional Details'}
+            </Label>
+            
+            <div>
+              <Label>{language === 'he' ? 'שנות ניסיון' : 'Years of Experience'}</Label>
+              <Input
+                type="number"
+                min="0"
+                value={formData.coach_experience_years}
+                onChange={(e) => setFormData(prev => ({ ...prev, coach_experience_years: parseInt(e.target.value) || 0 }))}
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label>{language === 'he' ? 'התמחויות' : 'Specializations'}</Label>
+              <p className="text-sm text-gray-500 mb-2">
+                {language === 'he' ? 'הזן התמחות ולחץ Enter' : 'Type specialization and press Enter'}
+              </p>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {formData.coach_specializations.map((spec, idx) => (
+                  <span key={idx} className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                    {spec}
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({
+                        ...prev,
+                        coach_specializations: prev.coach_specializations.filter((_, i) => i !== idx)
+                      }))}
+                      className="hover:text-emerald-900"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <Input
+                placeholder={language === 'he' ? 'לדוגמה: כדורגל נוער' : 'e.g., Youth Soccer'}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && e.target.value.trim()) {
+                    e.preventDefault();
+                    setFormData(prev => ({
+                      ...prev,
+                      coach_specializations: [...prev.coach_specializations, e.target.value.trim()]
+                    }));
+                    e.target.value = '';
+                  }
+                }}
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label>{language === 'he' ? 'הסמכות' : 'Certifications'}</Label>
+              <p className="text-sm text-gray-500 mb-2">
+                {language === 'he' ? 'הזן הסמכה ולחץ Enter' : 'Type certification and press Enter'}
+              </p>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {formData.coach_certifications.map((cert, idx) => (
+                  <span key={idx} className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                    {cert}
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({
+                        ...prev,
+                        coach_certifications: prev.coach_certifications.filter((_, i) => i !== idx)
+                      }))}
+                      className="hover:text-blue-900"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <Input
+                placeholder={language === 'he' ? 'לדוגמה: רישיון מאמן UEFA B' : 'e.g., UEFA B License'}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && e.target.value.trim()) {
+                    e.preventDefault();
+                    setFormData(prev => ({
+                      ...prev,
+                      coach_certifications: [...prev.coach_certifications, e.target.value.trim()]
+                    }));
+                    e.target.value = '';
+                  }
+                }}
+                className="mt-1"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Business Fields */}
+        {formData.profile_type === 'business' && (
+          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-4">
+            <Label className="text-base">
+              {language === 'he' ? 'פרטי עסק' : 'Business Details'}
+            </Label>
+            
+            <div>
+              <Label>{language === 'he' ? 'שם העסק' : 'Business Name'}</Label>
+              <Input
+                value={formData.business_name}
+                onChange={(e) => setFormData(prev => ({ ...prev, business_name: e.target.value }))}
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label>{language === 'he' ? 'סוג עסק' : 'Business Type'}</Label>
+              <select
+                value={formData.business_type}
+                onChange={(e) => setFormData(prev => ({ ...prev, business_type: e.target.value }))}
+                className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg"
+              >
+                <option value="">{language === 'he' ? 'בחר סוג' : 'Select type'}</option>
+                <option value="sports_store">{language === 'he' ? 'חנות ספורט' : 'Sports Store'}</option>
+                <option value="gym">{language === 'he' ? 'חדר כושר' : 'Gym'}</option>
+                <option value="training_center">{language === 'he' ? 'מרכז אימונים' : 'Training Center'}</option>
+                <option value="equipment_rental">{language === 'he' ? 'השכרת ציוד' : 'Equipment Rental'}</option>
+                <option value="sports_club">{language === 'he' ? 'מועדון ספורט' : 'Sports Club'}</option>
+                <option value="other">{language === 'he' ? 'אחר' : 'Other'}</option>
+              </select>
+            </div>
+
+            <div>
+              <Label>{language === 'he' ? 'תיאור העסק' : 'Business Description'}</Label>
+              <Textarea
+                value={formData.business_description}
+                onChange={(e) => setFormData(prev => ({ ...prev, business_description: e.target.value }))}
+                placeholder={language === 'he' ? 'תאר את העסק והשירותים...' : 'Describe your business and services...'}
+                className="mt-1 resize-none"
+                rows={3}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

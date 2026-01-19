@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Users, Calendar, BookOpen, Award } from 'lucide-react';
+import { Plus, Users, Calendar, BookOpen, Award, Pencil } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 import { useLanguage } from '@/components/i18n/LanguageContext';
 import { cn } from '@/lib/utils';
@@ -138,11 +138,13 @@ export default function CoachDashboard() {
           ) : (
             <div className="space-y-4">
               {myPrograms.map((program) => (
-                <Card key={program.id} className="hover:shadow-md transition-shadow cursor-pointer"
-                  onClick={() => navigate(createPageUrl('TrainingProgramDetails') + '?id=' + program.id)}>
+                <Card key={program.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
                     <div className={cn("flex items-start justify-between", isRTL && "flex-row-reverse")}>
-                      <div>
+                      <div 
+                        className="flex-1 cursor-pointer"
+                        onClick={() => navigate(createPageUrl('TrainingProgramDetails') + '?id=' + program.id)}
+                      >
                         <h3 className="font-semibold text-lg">{program.title}</h3>
                         <p className="text-sm text-gray-500 mt-1">{program.description}</p>
                         <div className={cn("flex gap-4 mt-3 text-sm", isRTL && "flex-row-reverse")}>
@@ -154,12 +156,24 @@ export default function CoachDashboard() {
                           </span>
                         </div>
                       </div>
-                      <span className={cn(
-                        "px-3 py-1 rounded-full text-xs font-medium",
-                        program.is_public ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
-                      )}>
-                        {program.is_public ? (isRTL ? 'ציבורי' : 'Public') : (isRTL ? 'פרטי' : 'Private')}
-                      </span>
+                      <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(createPageUrl('EditTrainingProgram') + '?id=' + program.id);
+                          }}
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <span className={cn(
+                          "px-3 py-1 rounded-full text-xs font-medium",
+                          program.is_public ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
+                        )}>
+                          {program.is_public ? (isRTL ? 'ציבורי' : 'Public') : (isRTL ? 'פרטי' : 'Private')}
+                        </span>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
