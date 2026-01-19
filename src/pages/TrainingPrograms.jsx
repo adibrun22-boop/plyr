@@ -15,6 +15,7 @@ export default function TrainingPrograms() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { t, isRTL, language } = useLanguage();
+  const [activeTab, setActiveTab] = useState('all');
 
   const { data: user } = useQuery({
     queryKey: ['user'],
@@ -133,7 +134,7 @@ export default function TrainingPrograms() {
         </p>
       </div>
 
-      <Tabs defaultValue="all" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-6">
           <TabsTrigger value="all">{isRTL ? 'כל התוכניות' : 'All Programs'}</TabsTrigger>
           <TabsTrigger value="enrolled">{isRTL ? 'התוכניות שלי' : 'My Programs'}</TabsTrigger>
@@ -166,7 +167,7 @@ export default function TrainingPrograms() {
                 <p className="text-gray-500 mb-4">
                   {isRTL ? 'לא נרשמת לתוכניות אימון עדיין' : "You haven't enrolled in any programs yet"}
                 </p>
-                <Button variant="outline" onClick={() => document.querySelector('[value="all"]').click()}>
+                <Button variant="outline" onClick={() => setActiveTab('all')}>
                   {isRTL ? 'גלה תוכניות' : 'Browse Programs'}
                 </Button>
               </CardContent>
