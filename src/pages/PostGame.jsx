@@ -28,6 +28,7 @@ export default function PostGame() {
   const { t, isRTL, language } = useLanguage();
   const [step, setStep] = useState(1);
   const [attended, setAttended] = useState(null);
+  const [myTeam, setMyTeam] = useState(null); // 'team_a' or 'team_b'
   const [selectedPlayers, setSelectedPlayers] = useState([]);
   const [ratings, setRatings] = useState({});
   const [selfReport, setSelfReport] = useState({
@@ -36,6 +37,7 @@ export default function PostGame() {
     feeling: 'good'
   });
   const [score, setScore] = useState({ team_a: 0, team_b: 0 });
+  const [goals, setGoals] = useState([]);
 
   const urlParams = new URLSearchParams(window.location.search);
   const eventId = urlParams.get('eventId');
@@ -61,15 +63,24 @@ export default function PostGame() {
     enabled: !!eventId,
   });
 
-  const { data: participants = [] } = useQuery({
+  const { data: allParticipants = [] } = useQuery({
     queryKey: ['eventParticipants', event?.participants],
     queryFn: async () => {
       if (!event?.participants?.length) return [];
       const allPlayers = await base44.entities.Player.list();
-      return allPlayers.filter(p => event.participants.includes(p.id) && p.id !== currentPlayer?.id);
+      return allPlayers.filter(p => event.participants.includes(p.id));
     },
-    enabled: !!event?.participants?.length && !!currentPlayer,
+    enabled: !!event?.participants?.length,
   });
+
+  // Determine teams - only opposing team players can be rated
+  const participants = React.useMemo(() => {
+    if (!myTeam || !event?.team_a || !event?.team_b) return [];
+    const opposingTeamIds = myTeam === 'team_a' ? event.team_b : event.team_a;
+    return allParticipants.filter(p => 
+      opposingTeamIds.includes(p.id) && p.id !== currentPlayer?.id
+    );
+  }, [myTeam, event, allParticipants, currentPlayer]);
 
   useEffect(() => {
     if (participants.length > 0 && selectedPlayers.length === 0) {
@@ -79,16 +90,17 @@ export default function PostGame() {
 
   const submitMutation = useMutation({
     mutationFn: async () => {
-      // Submit ratings
+      // Submit ratings (only for opposing team players)
       const ratingPromises = Object.entries(ratings).map(([playerId, playerRatings]) => 
         base44.entities.Rating.create({
           event_id: eventId,
           rater_id: currentPlayer.id,
           rated_player_id: playerId,
-          effort: playerRatings.effort,
-          teamwork: playerRatings.teamwork,
-          sportsmanship: playerRatings.sportsmanship,
-          overall: playerRatings.overall,
+          defense: playerRatings.defense,
+          offense: playerRatings.offense,
+          general: playerRatings.general,
+          rater_team: myTeam,
+          rated_team: myTeam === 'team_a' ? 'team_b' : 'team_a',
           rater_reliability_weight: 1
         })
       );
@@ -103,13 +115,18 @@ export default function PostGame() {
         is_self_reported: true
       });
 
-      // Update event with confirmed attendance and score
+      // Update event with confirmed attendance
       const confirmedAttendance = [...(event.confirmed_attendance || []), currentPlayer.id];
-      await base44.entities.Event.update(eventId, { 
-        confirmed_attendance: confirmedAttendance,
-        score_team_a: score.team_a,
-        score_team_b: score.team_b
-      });
+      const updateData = { confirmed_attendance: confirmedAttendance };
+      
+      // Only organizer can submit score and goals
+      if (isOrganizer) {
+        updateData.score_team_a = score.team_a;
+        updateData.score_team_b = score.team_b;
+        updateData.goals = goals;
+      }
+      
+      await base44.entities.Event.update(eventId, updateData);
 
       // Create feed post
       await base44.entities.FeedPost.create({
@@ -153,18 +170,31 @@ export default function PostGame() {
     setRatings(prev => ({
       ...prev,
       [playerId]: {
-        ...(prev[playerId] || { effort: 3, teamwork: 3, sportsmanship: 3, overall: 3 }),
+        ...(prev[playerId] || { defense: 3, offense: 3, general: 3 }),
         [category]: value
       }
     }));
   };
 
+  // Determine user's team when event loads
+  useEffect(() => {
+    if (event && currentPlayer && !myTeam) {
+      if (event.team_a?.includes(currentPlayer.id)) {
+        setMyTeam('team_a');
+      } else if (event.team_b?.includes(currentPlayer.id)) {
+        setMyTeam('team_b');
+      }
+    }
+  }, [event, currentPlayer, myTeam]);
+
+  const isOrganizer = event?.organizer_id === currentPlayer?.id;
+
   const getStepTitle = () => {
     switch (step) {
       case 1: return t('postGame.confirmAttendance');
-      case 2: return t('postGame.enterScore');
-      case 3: return t('postGame.ratePlayers');
-      case 4: return t('postGame.selfReport');
+      case 2: return isOrganizer ? t('postGame.enterScore') : t('postGame.ratePlayers');
+      case 3: return isOrganizer ? t('postGame.ratePlayers') : t('postGame.selfReport');
+      case 4: return isOrganizer ? t('postGame.selfReport') : language === 'he' ? 'סיכום' : 'Summary';
       case 5: return language === 'he' ? 'סיכום' : 'Summary';
       case 6: return t('postGame.thankYou');
       default: return '';
@@ -226,7 +256,11 @@ export default function PostGame() {
 
             <div className="grid grid-cols-2 gap-4">
               <button
-                onClick={() => { setAttended(true); setStep(2); }}
+                onClick={() => { 
+                  setAttended(true); 
+                  // Organizer goes to score entry, others skip to ratings
+                  setStep(isOrganizer ? 2 : 3); 
+                }}
                 className="p-6 rounded-2xl bg-emerald-50 hover:bg-emerald-100 transition-colors flex flex-col items-center gap-2"
               >
                 <div className="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center">
@@ -247,12 +281,15 @@ export default function PostGame() {
           </div>
         )}
 
-        {/* Step 2: Score Entry */}
-        {step === 2 && (
+        {/* Step 2: Score Entry (Organizer Only) */}
+        {step === 2 && isOrganizer && (
           <div className="bg-white rounded-3xl p-6 shadow-xl">
-            <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">{t('postGame.enterScore')}</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-2 text-center">{t('postGame.enterScore')}</h2>
+            <p className="text-xs text-emerald-600 text-center mb-6">
+              {language === 'he' ? 'רק מארגן המשחק יכול להזין תוצאות' : 'Only the game organizer can enter results'}
+            </p>
             
-            <div className="flex items-center justify-center gap-4 mb-8">
+            <div className="flex items-center justify-center gap-4 mb-6">
               <div className="text-center">
                 <Label className="text-gray-500 mb-2 block">{t('postGame.teamA')}</Label>
                 <Input
@@ -288,13 +325,21 @@ export default function PostGame() {
         {/* Step 3: Player Ratings */}
         {step === 3 && (
           <div className="bg-white rounded-3xl p-6 shadow-xl">
-            <h2 className="text-xl font-bold text-gray-900 mb-2 text-center">{t('postGame.rateYourTeammates')}</h2>
-            <p className="text-gray-500 text-center mb-6 text-sm">{t('postGame.selectPlayers')}</p>
+            <h2 className="text-xl font-bold text-gray-900 mb-2 text-center">
+              {language === 'he' ? 'דרג שחקנים מהקבוצה היריבה' : 'Rate Opposing Team Players'}
+            </h2>
+            <p className="text-gray-500 text-center mb-6 text-sm">
+              {language === 'he' ? 'אתה יכול לדרג רק שחקנים מהקבוצה היריבה' : 'You can only rate players from the opposing team'}
+            </p>
             
             <div className="space-y-4 max-h-96 overflow-y-auto">
-              {participants.map(player => {
+              {participants.length === 0 ? (
+                <p className="text-center text-gray-400 py-8">
+                  {language === 'he' ? 'אין שחקנים מהקבוצה היריבה לדירוג' : 'No opposing team players to rate'}
+                </p>
+              ) : participants.map(player => {
                 const isSelected = selectedPlayers.includes(player.id);
-                const playerRatings = ratings[player.id] || { effort: 3, teamwork: 3, sportsmanship: 3, overall: 3 };
+                const playerRatings = ratings[player.id] || { defense: 3, offense: 3, general: 3 };
                 
                 return (
                   <div key={player.id} className={cn(
@@ -317,9 +362,13 @@ export default function PostGame() {
                     
                     {isSelected && (
                       <div className="px-4 pb-4 space-y-3 border-t border-gray-100 pt-4">
-                        {['effort', 'teamwork', 'sportsmanship', 'overall'].map(category => (
+                        {['defense', 'offense', 'general'].map(category => (
                           <div key={category} className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
-                            <span className="text-sm text-gray-600">{t(`postGame.${category}`)}</span>
+                            <span className="text-sm text-gray-600">
+                              {language === 'he' 
+                                ? (category === 'defense' ? 'הגנה' : category === 'offense' ? 'התקפה' : 'כללי')
+                                : (category === 'defense' ? 'Defense' : category === 'offense' ? 'Offense' : 'General')}
+                            </span>
                             <StarRating
                               value={playerRatings[category]}
                               onChange={(val) => setPlayerRating(player.id, category, val)}
@@ -415,7 +464,7 @@ export default function PostGame() {
             </div>
 
             <Button
-              onClick={() => setStep(5)}
+              onClick={() => setStep(isOrganizer ? 5 : 6)}
               className="w-full h-12 bg-emerald-600 hover:bg-emerald-700"
             >
               {t('common.next')}
@@ -423,8 +472,8 @@ export default function PostGame() {
           </div>
         )}
 
-        {/* Step 5: Summary */}
-        {step === 5 && (
+        {/* Step 5: Summary (Organizer has score, all have ratings) */}
+        {step === 5 && isOrganizer && (
           <div className="bg-white rounded-3xl p-6 shadow-xl">
             <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">
               {language === 'he' ? 'סיכום' : 'Summary'}
@@ -436,6 +485,36 @@ export default function PostGame() {
                 <p className="text-2xl font-bold">{score.team_a} - {score.team_b}</p>
               </div>
               
+              <div className="bg-gray-50 rounded-xl p-4">
+                <span className="text-sm text-gray-500">{t('postGame.ratePlayers')}</span>
+                <p className="font-medium">{Object.keys(ratings).length} {language === 'he' ? 'שחקנים דורגו' : 'players rated'}</p>
+              </div>
+
+              <div className="bg-gray-50 rounded-xl p-4">
+                <span className="text-sm text-gray-500">{t('postGame.howDidYouFeel')}</span>
+                <p className="text-2xl">{FEELING_EMOJIS[selfReport.feeling]} {t(`postGame.feeling.${selfReport.feeling}`)}</p>
+              </div>
+            </div>
+
+            <Button
+              onClick={() => submitMutation.mutate()}
+              disabled={submitMutation.isPending}
+              className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 gap-2"
+            >
+              <Check className="w-5 h-5" />
+              {t('postGame.submitRatings')}
+            </Button>
+          </div>
+        )}
+
+        {/* Step 5 (non-organizer): Submit directly */}
+        {step === 5 && !isOrganizer && (
+          <div className="bg-white rounded-3xl p-6 shadow-xl">
+            <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">
+              {language === 'he' ? 'מוכן לשלוח?' : 'Ready to Submit?'}
+            </h2>
+
+            <div className="space-y-4 mb-6">
               <div className="bg-gray-50 rounded-xl p-4">
                 <span className="text-sm text-gray-500">{t('postGame.ratePlayers')}</span>
                 <p className="font-medium">{Object.keys(ratings).length} {language === 'he' ? 'שחקנים דורגו' : 'players rated'}</p>
