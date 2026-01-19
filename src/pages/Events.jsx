@@ -33,11 +33,28 @@ const SPORTS = ['football', 'basketball', 'tennis', 'volleyball', 'running', 'cy
 const SKILL_LEVELS = ['beginner', 'intermediate', 'advanced', 'all'];
 
 export default function Events() {
-  const { t, isRTL } = useLanguage();
+  const { t, isRTL, language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSport, setSelectedSport] = useState(null);
   const [selectedSkillLevel, setSelectedSkillLevel] = useState(null);
+  const [selectedDistance, setSelectedDistance] = useState(null);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
+
+  // Get user location
+  React.useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        () => setUserLocation(null)
+      );
+    }
+  }, []);
 
   const { data: events = [], isLoading } = useQuery({
     queryKey: ['events', selectedSport, selectedSkillLevel],
@@ -49,23 +66,52 @@ export default function Events() {
     },
   });
 
+  // Calculate distance between two coordinates
+  const calculateDistance = (lat1, lng1, lat2, lng2) => {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
   const filteredEvents = events.filter(event => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      event.title?.toLowerCase().includes(query) ||
-      event.location_name?.toLowerCase().includes(query) ||
-      event.sport_type?.toLowerCase().includes(query)
-    );
+    // Search query filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesSearch = 
+        event.title?.toLowerCase().includes(query) ||
+        event.location_name?.toLowerCase().includes(query) ||
+        event.sport_type?.toLowerCase().includes(query);
+      if (!matchesSearch) return false;
+    }
+
+    // Distance filter
+    if (selectedDistance && userLocation && event.location_coords) {
+      const distance = calculateDistance(
+        userLocation.lat,
+        userLocation.lng,
+        event.location_coords.lat,
+        event.location_coords.lng
+      );
+      if (distance > parseFloat(selectedDistance)) return false;
+    }
+
+    return true;
   });
 
   const clearFilters = () => {
     setSelectedSport(null);
     setSelectedSkillLevel(null);
+    setSelectedDistance(null);
     setSearchQuery('');
   };
 
-  const hasActiveFilters = selectedSport || selectedSkillLevel;
+  const hasActiveFilters = selectedSport || selectedSkillLevel || selectedDistance;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
@@ -108,7 +154,7 @@ export default function Events() {
                 <span className="hidden sm:inline">{t('common.filter')}</span>
                 {hasActiveFilters && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full text-white text-xs flex items-center justify-center">
-                    {(selectedSport ? 1 : 0) + (selectedSkillLevel ? 1 : 0)}
+                    {(selectedSport ? 1 : 0) + (selectedSkillLevel ? 1 : 0) + (selectedDistance ? 1 : 0)}
                   </span>
                 )}
               </Button>
@@ -162,6 +208,31 @@ export default function Events() {
                   </div>
                 </div>
 
+                {/* Distance Filter */}
+                {userLocation && (
+                  <div>
+                    <h3 className="font-medium mb-3">
+                      {language === 'he' ? 'מרחק' : 'Distance'}
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {['1', '3', '5', '10', '20'].map(distance => (
+                        <button
+                          key={distance}
+                          onClick={() => setSelectedDistance(selectedDistance === distance ? null : distance)}
+                          className={cn(
+                            "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                            selectedDistance === distance
+                              ? "bg-emerald-500 text-white"
+                              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                          )}
+                        >
+                          {language === 'he' ? `עד ${distance} ק"מ` : `Within ${distance} km`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Clear Filters */}
                 {hasActiveFilters && (
                   <Button
@@ -198,6 +269,16 @@ export default function Events() {
                 onClick={() => setSelectedSkillLevel(null)}
               >
                 {t(`skillLevels.${selectedSkillLevel}`)}
+                <X className="w-3 h-3" />
+              </Badge>
+            )}
+            {selectedDistance && (
+              <Badge 
+                variant="secondary" 
+                className="gap-1 bg-emerald-100 text-emerald-700 cursor-pointer"
+                onClick={() => setSelectedDistance(null)}
+              >
+                {language === 'he' ? `עד ${selectedDistance} ק"מ` : `Within ${selectedDistance} km`}
                 <X className="w-3 h-3" />
               </Badge>
             )}

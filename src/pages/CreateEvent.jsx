@@ -50,6 +50,7 @@ export default function CreateEvent() {
     max_players: 10,
     min_players: 4,
     skill_level: 'all',
+    min_level_requirements: {},
     is_public: true,
     description: '',
     cover_image: ''
@@ -461,6 +462,60 @@ export default function CreateEvent() {
                 ))}
               </div>
             </div>
+
+            {/* Minimum Level Requirements (for team sports) */}
+            {['football', 'basketball', 'volleyball'].includes(formData.sport_type) && (
+              <div className="bg-white rounded-xl p-4 border border-gray-200">
+                <Label className="text-base">
+                  {language === 'he' ? 'דרישות רמה מינימליות (אופציונלי)' : 'Minimum Level Requirements (optional)'}
+                </Label>
+                <p className="text-sm text-gray-500 mt-1 mb-3">
+                  {language === 'he' ? 'הגדר רמה מינימלית לפי תפקיד' : 'Set minimum level per role'}
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-sm text-gray-600">
+                      {language === 'he' ? 'הגנה' : 'Defense'}
+                    </span>
+                    <Input
+                      type="number"
+                      min="1"
+                      max="10"
+                      placeholder={language === 'he' ? 'רמה (1-10)' : 'Level (1-10)'}
+                      value={formData.min_level_requirements?.defense || ''}
+                      onChange={(e) => {
+                        const value = e.target.value ? parseInt(e.target.value) : undefined;
+                        updateField('min_level_requirements', {
+                          ...formData.min_level_requirements,
+                          defense: value
+                        });
+                      }}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-sm text-gray-600">
+                      {language === 'he' ? 'התקפה' : 'Offense'}
+                    </span>
+                    <Input
+                      type="number"
+                      min="1"
+                      max="10"
+                      placeholder={language === 'he' ? 'רמה (1-10)' : 'Level (1-10)'}
+                      value={formData.min_level_requirements?.offense || ''}
+                      onChange={(e) => {
+                        const value = e.target.value ? parseInt(e.target.value) : undefined;
+                        updateField('min_level_requirements', {
+                          ...formData.min_level_requirements,
+                          offense: value
+                        });
+                      }}
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Public/Private */}
             <div className="bg-white rounded-xl p-4 border border-gray-200">
