@@ -10,7 +10,8 @@ import {
   Settings,
   Menu,
   X,
-  Plus
+  Plus,
+  Users
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -103,6 +104,12 @@ function LayoutContent({ children, currentPageName }) {
 
             {/* Right Actions */}
             <div className={cn("flex items-center gap-3", isRTL && "flex-row-reverse")}>
+              <Link to={createPageUrl('Teams')}>
+                <Button variant="outline" className="gap-2">
+                  <Users className="w-4 h-4" />
+                  {t('teams.myTeams')}
+                </Button>
+              </Link>
               <Link to={createPageUrl('CreateEvent')}>
                 <Button className="bg-emerald-600 hover:bg-emerald-700 gap-2">
                   <Plus className="w-4 h-4" />

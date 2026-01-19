@@ -134,13 +134,25 @@ export default function Teams() {
 
         {/* Leagues Section */}
         <div className="mt-8">
-          <h2 className="text-lg font-semibold mb-4">{t('teams.leagues')}</h2>
-          <div className="bg-white rounded-xl p-8 text-center border border-gray-100">
-            <Trophy className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">
-              {language === 'he' ? 'ליגות יהיו זמינות בקרוב' : 'Leagues coming soon'}
-            </p>
+          <div className={cn("flex items-center justify-between mb-4", isRTL && "flex-row-reverse")}>
+            <h2 className="text-lg font-semibold">{t('teams.leagues')}</h2>
+            <Link to={createPageUrl('Leagues')}>
+              <Button variant="outline" size="sm">
+                {language === 'he' ? 'כל הליגות' : 'View All'}
+              </Button>
+            </Link>
           </div>
+          <Link to={createPageUrl('Leagues')}>
+            <div className="bg-white rounded-xl p-8 text-center border border-gray-100 hover:border-emerald-200 transition-colors cursor-pointer">
+              <Trophy className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
+              <p className="text-gray-700 font-medium mb-2">
+                {language === 'he' ? 'צפה בליגות והצטרף' : 'Browse & Join Leagues'}
+              </p>
+              <p className="text-sm text-gray-500">
+                {language === 'he' ? 'צור ליגות והשתתף בתחרויות' : 'Create leagues and compete'}
+              </p>
+            </div>
+          </Link>
         </div>
       </div>
     </div>
