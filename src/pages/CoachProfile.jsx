@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils';
 
 export default function CoachProfile() {
   const { t, isRTL, language } = useLanguage();
+  const navigate = useNavigate();
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -111,7 +112,10 @@ export default function CoachProfile() {
             </div>
 
             {/* Create Program Button */}
-            <Button className="w-full bg-emerald-600 hover:bg-emerald-700 gap-2 mb-6">
+            <Button 
+              onClick={() => navigate(createPageUrl('CreateTrainingProgram'))}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 gap-2 mb-6"
+            >
               <Plus className="w-5 h-5" />
               {t('coach.createProgram')}
             </Button>
@@ -123,7 +127,10 @@ export default function CoachProfile() {
                 <p className="text-gray-500 mb-4">
                   {language === 'he' ? 'אין תוכניות אימון עדיין' : 'No training programs yet'}
                 </p>
-                <Button className="bg-emerald-600 hover:bg-emerald-700">
+                <Button 
+                  onClick={() => navigate(createPageUrl('CreateTrainingProgram'))}
+                  className="bg-emerald-600 hover:bg-emerald-700"
+                >
                   {t('coach.createProgram')}
                 </Button>
               </div>
