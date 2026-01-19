@@ -11,7 +11,10 @@ import {
   Menu,
   X,
   Plus,
-  Users
+  Users,
+  Trophy,
+  BookOpen,
+  GraduationCap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,10 +22,12 @@ import { LanguageProvider, useLanguage } from '@/components/i18n/LanguageContext
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
 function LayoutContent({ children, currentPageName }) {
   const { t, isRTL, language, toggleLanguage } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sideMenuOpen, setSideMenuOpen] = useState(false);
   const location = useLocation();
 
   const { data: notifications = [] } = useQuery({
@@ -38,6 +43,19 @@ function LayoutContent({ children, currentPageName }) {
       }
     },
     refetchInterval: 30000,
+  });
+
+  const { data: player } = useQuery({
+    queryKey: ['current-player'],
+    queryFn: async () => {
+      try {
+        const user = await base44.auth.me();
+        const players = await base44.entities.Player.filter({ user_id: user.id });
+        return players[0];
+      } catch {
+        return null;
+      }
+    },
   });
 
   const unreadCount = notifications.length;
@@ -151,6 +169,84 @@ function LayoutContent({ children, currentPageName }) {
       {!hideNav && (
         <header className="md:hidden fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-200">
           <div className="px-4 h-14 flex items-center justify-between">
+            <Sheet open={sideMenuOpen} onOpenChange={setSideMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9">
+                  <Menu className="w-5 h-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side={isRTL ? "right" : "left"} className="w-80">
+                <SheetHeader>
+                  <SheetTitle className={cn(isRTL && "text-right")}>
+                    {isRTL ? 'תפריט' : 'Menu'}
+                  </SheetTitle>
+                </SheetHeader>
+                <nav className="mt-8 space-y-1">
+                  <Link 
+                    to={createPageUrl('Teams')} 
+                    onClick={() => setSideMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <Users className="w-5 h-5 text-gray-600" />
+                    <span className="font-medium">{isRTL ? 'הקבוצות שלי' : 'My Teams'}</span>
+                  </Link>
+
+                  <Link 
+                    to={createPageUrl('Leagues')} 
+                    onClick={() => setSideMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <Trophy className="w-5 h-5 text-gray-600" />
+                    <span className="font-medium">{isRTL ? 'ליגות' : 'Leagues'}</span>
+                  </Link>
+
+                  <Link 
+                    to={createPageUrl('TrainingPrograms')} 
+                    onClick={() => setSideMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <BookOpen className="w-5 h-5 text-gray-600" />
+                    <span className="font-medium">{isRTL ? 'תוכניות אימון' : 'Training Programs'}</span>
+                  </Link>
+
+                  {player?.profile_type === 'coach' && (
+                    <Link 
+                      to={createPageUrl('CoachDashboard')} 
+                      onClick={() => setSideMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      <GraduationCap className="w-5 h-5 text-gray-600" />
+                      <span className="font-medium">{isRTL ? 'לוח מאמן' : 'Coach Dashboard'}</span>
+                    </Link>
+                  )}
+
+                  <div className="border-t my-4"></div>
+
+                  <Link 
+                    to={createPageUrl('Settings')} 
+                    onClick={() => setSideMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <Settings className="w-5 h-5 text-gray-600" />
+                    <span className="font-medium">{isRTL ? 'הגדרות' : 'Settings'}</span>
+                  </Link>
+
+                  <button
+                    onClick={() => {
+                      toggleLanguage();
+                      setSideMenuOpen(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-left"
+                  >
+                    <span className="w-5 h-5 flex items-center justify-center text-sm font-bold text-gray-600">
+                      {language === 'en' ? 'עב' : 'EN'}
+                    </span>
+                    <span className="font-medium">{isRTL ? 'שפה' : 'Language'}</span>
+                  </button>
+                </nav>
+              </SheetContent>
+            </Sheet>
+
             <Link to={createPageUrl('Home')} className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
                 <span className="text-white font-bold">P</span>
@@ -169,19 +265,6 @@ function LayoutContent({ children, currentPageName }) {
                   )}
                 </Button>
               </Link>
-              <Link to={createPageUrl('Settings')}>
-                <Button variant="ghost" size="icon" className="h-9 w-9">
-                  <Settings className="w-5 h-5" />
-                </Button>
-              </Link>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={toggleLanguage}
-                className="text-xs h-9"
-              >
-                {language === 'en' ? 'עב' : 'EN'}
-              </Button>
             </div>
           </div>
         </header>
