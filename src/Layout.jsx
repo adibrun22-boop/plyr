@@ -151,7 +151,7 @@ function LayoutContent({ children, currentPageName }) {
               <span className="font-bold text-lg text-gray-900">PLYR</span>
             </Link>
 
-            <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+            <div className={cn("flex items-center gap-1", isRTL && "flex-row-reverse")}>
               <Link to={createPageUrl('Notifications')} className="relative">
                 <Button variant="ghost" size="icon" className="h-9 w-9">
                   <Bell className="w-5 h-5" />
@@ -160,6 +160,11 @@ function LayoutContent({ children, currentPageName }) {
                       {unreadCount}
                     </span>
                   )}
+                </Button>
+              </Link>
+              <Link to={createPageUrl('Settings')}>
+                <Button variant="ghost" size="icon" className="h-9 w-9">
+                  <Settings className="w-5 h-5" />
                 </Button>
               </Link>
               <Button 
