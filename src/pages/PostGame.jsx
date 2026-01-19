@@ -386,13 +386,13 @@ export default function PostGame() {
             <div className="mt-6 flex gap-3">
               <Button
                 variant="outline"
-                onClick={() => setStep(4)}
+                onClick={() => setStep(isOrganizer ? 4 : 5)}
                 className="flex-1 h-12"
               >
                 {t('postGame.skipRatings')}
               </Button>
               <Button
-                onClick={() => setStep(4)}
+                onClick={() => setStep(isOrganizer ? 4 : 5)}
                 className="flex-1 h-12 bg-emerald-600 hover:bg-emerald-700"
               >
                 {t('common.next')}
