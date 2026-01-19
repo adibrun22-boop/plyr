@@ -26,6 +26,7 @@ export default function EditProfile() {
     username: '',
     bio: '',
     avatar_url: '',
+    profile_type: 'player',
     sports: [],
     skill_levels: {}
   });
@@ -51,6 +52,7 @@ export default function EditProfile() {
         username: player.username || '',
         bio: player.bio || '',
         avatar_url: player.avatar_url || '',
+        profile_type: player.profile_type || 'player',
         sports: player.sports || [],
         skill_levels: player.skill_levels || {}
       });
@@ -170,6 +172,32 @@ export default function EditProfile() {
               disabled={uploading}
             />
           </label>
+        </div>
+
+        {/* Profile Type */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+          <Label className="text-base">
+            {language === 'he' ? 'סוג פרופיל' : 'Profile Type'}
+          </Label>
+          <div className="grid grid-cols-3 gap-2 mt-3">
+            {['player', 'coach', 'business'].map(type => (
+              <button
+                key={type}
+                type="button"
+                onClick={() => setFormData(prev => ({...prev, profile_type: type}))}
+                className={cn(
+                  "p-3 rounded-xl border-2 transition-all text-sm font-medium",
+                  formData.profile_type === type
+                    ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                    : "border-gray-200 hover:border-gray-300"
+                )}
+              >
+                {language === 'he' 
+                  ? type === 'player' ? 'שחקן' : type === 'coach' ? 'מאמן' : 'עסק'
+                  : type.charAt(0).toUpperCase() + type.slice(1)}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Basic Info */}
