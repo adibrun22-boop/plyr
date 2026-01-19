@@ -200,15 +200,6 @@ function LayoutContent({ children, currentPageName }) {
                     <span className="font-medium">{isRTL ? 'ליגות' : 'Leagues'}</span>
                   </Link>
 
-                  <Link 
-                    to={createPageUrl('TrainingPrograms')} 
-                    onClick={() => setSideMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    <BookOpen className="w-5 h-5 text-gray-600" />
-                    <span className="font-medium">{isRTL ? 'תוכניות אימון' : 'Training Programs'}</span>
-                  </Link>
-
                   {player?.profile_type === 'coach' && (
                     <Link 
                       to={createPageUrl('CoachDashboard')} 
@@ -219,6 +210,15 @@ function LayoutContent({ children, currentPageName }) {
                       <span className="font-medium">{isRTL ? 'לוח מאמן' : 'Coach Dashboard'}</span>
                     </Link>
                   )}
+
+                  <Link 
+                    to={createPageUrl('TrainingPrograms')} 
+                    onClick={() => setSideMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <BookOpen className="w-5 h-5 text-gray-600" />
+                    <span className="font-medium">{isRTL ? 'תוכניות אימון' : 'Training Programs'}</span>
+                  </Link>
 
                   <div className="border-t my-4"></div>
 
