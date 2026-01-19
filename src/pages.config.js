@@ -17,6 +17,11 @@ import TermsOfUse from './pages/TermsOfUse';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Teams from './pages/Teams';
 import CoachProfile from './pages/CoachProfile';
+import CreateTeam from './pages/CreateTeam';
+import TeamDetails from './pages/TeamDetails';
+import Leagues from './pages/Leagues';
+import CreateLeague from './pages/CreateLeague';
+import LeagueDetails from './pages/LeagueDetails';
 import __Layout from './Layout.jsx';
 
 
@@ -40,6 +45,11 @@ export const PAGES = {
     "PrivacyPolicy": PrivacyPolicy,
     "Teams": Teams,
     "CoachProfile": CoachProfile,
+    "CreateTeam": CreateTeam,
+    "TeamDetails": TeamDetails,
+    "Leagues": Leagues,
+    "CreateLeague": CreateLeague,
+    "LeagueDetails": LeagueDetails,
 }
 
 export const pagesConfig = {
