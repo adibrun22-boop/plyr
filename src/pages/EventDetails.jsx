@@ -115,9 +115,35 @@ export default function EventDetails() {
   const leaveMutation = useMutation({
     mutationFn: async () => {
       const updatedParticipants = event.participants.filter(id => id !== currentPlayer.id);
-      return base44.entities.Event.update(event.id, { participants: updatedParticipants });
+      
+      // Check if cancellation is less than 1 hour before game start
+      const gameStart = new Date(`${event.date}T${event.start_time}`);
+      const now = new Date();
+      const hoursDiff = (gameStart - now) / (1000 * 60 * 60);
+      
+      let penaltyApplied = false;
+      if (hoursDiff > 0 && hoursDiff < 1) {
+        // Apply penalty: deduct 5 points
+        await base44.entities.Player.update(currentPlayer.id, {
+          penalty_points: (currentPlayer.penalty_points || 0) + 5,
+          total_points: Math.max(0, (currentPlayer.total_points || 0) - 5)
+        });
+        penaltyApplied = true;
+      }
+      
+      await base44.entities.Event.update(event.id, { participants: updatedParticipants });
+      return { penaltyApplied };
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['event', eventId] }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['event', eventId] });
+      queryClient.invalidateQueries({ queryKey: ['currentPlayer'] });
+      
+      if (data.penaltyApplied) {
+        alert(language === 'he' 
+          ? 'עזבת את המשחק פחות משעה לפני ההתחלה. נוכו 5 נקודות מהחשבון שלך.'
+          : 'You left less than 1 hour before the game. 5 points have been deducted from your account.');
+      }
+    },
   });
 
   const cancelMutation = useMutation({
