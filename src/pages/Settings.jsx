@@ -1,7 +1,7 @@
 import React from 'react';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   ChevronLeft,
   ChevronRight,
@@ -33,6 +33,7 @@ import { cn } from '@/lib/utils';
 
 export default function Settings() {
   const { t, isRTL, language, setLanguage } = useLanguage();
+  const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -59,6 +60,9 @@ export default function Settings() {
         const notificationSettings = { ...(player.notification_settings || {}), [key]: value };
         return base44.entities.Player.update(player.id, { notification_settings: notificationSettings });
       }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['currentPlayer'] });
     },
   });
 
