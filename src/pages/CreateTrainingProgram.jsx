@@ -148,10 +148,11 @@ export default function CreateTrainingProgram() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="football">Football</SelectItem>
-                    <SelectItem value="basketball">Basketball</SelectItem>
-                    <SelectItem value="tennis">Tennis</SelectItem>
-                    <SelectItem value="volleyball">Volleyball</SelectItem>
+                    <SelectItem value="football">{t('sports.football')}</SelectItem>
+                    <SelectItem value="basketball">{t('sports.basketball')}</SelectItem>
+                    <SelectItem value="tennis">{t('sports.tennis')}</SelectItem>
+                    <SelectItem value="volleyball">{t('sports.volleyball')}</SelectItem>
+                    <SelectItem value="personal_training">{t('sports.personal_training')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

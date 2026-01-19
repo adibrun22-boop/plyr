@@ -46,6 +46,7 @@ export const translations = {
       padel: "Padel",
       yoga: "Yoga",
       fitness: "Fitness",
+      personal_training: "Personal Training",
       other: "Other",
     },
     // Skill Levels
@@ -365,6 +366,7 @@ export const translations = {
       padel: "פאדל",
       yoga: "יוגה",
       fitness: "כושר",
+      personal_training: "אימון אישי",
       other: "אחר",
     },
     // Skill Levels
