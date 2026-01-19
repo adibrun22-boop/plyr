@@ -12,6 +12,9 @@ import Onboarding from './pages/Onboarding';
 import PostGame from './pages/PostGame';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
+import ContactUs from './pages/ContactUs';
+import TermsOfUse from './pages/TermsOfUse';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import __Layout from './Layout.jsx';
 
 
@@ -30,6 +33,9 @@ export const PAGES = {
     "PostGame": PostGame,
     "Profile": Profile,
     "Settings": Settings,
+    "ContactUs": ContactUs,
+    "TermsOfUse": TermsOfUse,
+    "PrivacyPolicy": PrivacyPolicy,
 }
 
 export const pagesConfig = {

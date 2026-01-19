@@ -99,6 +99,41 @@ const ALL_ACHIEVEMENTS = [
     requirement_type: 'overall_rating',
     requirement_value: 4.5
   },
+  { 
+    achievement_id: 'fair_play', 
+    name_en: 'Fair Play Player', 
+    name_he: 'שחקן הוגן', 
+    description_en: 'Maintain excellent sportsmanship',
+    description_he: 'שמור על ספורטיביות מעולה',
+    points: 150,
+    category: 'performance',
+    requirement_type: 'sportsmanship_rating',
+    requirement_value: 4.7
+  },
+  { 
+    achievement_id: 'best_player', 
+    name_en: 'Best Player', 
+    name_he: 'שחקן הטוב ביותר', 
+    description_en: 'Top performer of the season',
+    description_he: 'הביצועים הטובים ביותר בעונה',
+    points: 300,
+    category: 'special',
+    requirement_type: 'seasonal_rank',
+    requirement_value: 1,
+    is_seasonal: true
+  },
+  { 
+    achievement_id: 'most_active', 
+    name_en: 'Most Active Player', 
+    name_he: 'השחקן הפעיל ביותר', 
+    description_en: 'Most games played this season',
+    description_he: 'הכי הרבה משחקים בעונה',
+    points: 200,
+    category: 'special',
+    requirement_type: 'seasonal_games',
+    requirement_value: 1,
+    is_seasonal: true
+  },
 ];
 
 export default function Achievements() {

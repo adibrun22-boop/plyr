@@ -241,6 +241,61 @@ export const translations = {
       superOrganizerDesc: "Organize 10 events",
       allStar: "All Star",
       allStarDesc: "Get 5-star overall rating 10 times",
+      fairPlay: "Fair Play Player",
+      fairPlayDesc: "Maintain excellent sportsmanship",
+      bestPlayer: "Best Player",
+      bestPlayerDesc: "Top performer of the season",
+      mostActive: "Most Active Player",
+      mostActiveDesc: "Most games played this season",
+    },
+    // Teams & Leagues
+    teams: {
+      myTeams: "My Teams",
+      createTeam: "Create Team",
+      teamName: "Team Name",
+      captain: "Captain",
+      members: "Members",
+      leagues: "Leagues",
+      wins: "Wins",
+      losses: "Losses",
+      draws: "Draws",
+      standings: "Standings",
+      joinLeague: "Join League",
+      inviteReferee: "Invite Referee",
+    },
+    // Coach
+    coach: {
+      trainingPrograms: "Training Programs",
+      createProgram: "Create Program",
+      sessions: "Sessions",
+      enrolled: "Enrolled",
+      difficulty: "Difficulty",
+    },
+    // Filters
+    filters: {
+      surfaceType: "Surface Type",
+      synthetic: "Synthetic",
+      asphalt: "Asphalt",
+      grass: "Grass",
+      distance: "Distance",
+      within: "Within",
+      km: "km",
+    },
+    // Legal
+    legal: {
+      contactUs: "Contact Us",
+      termsOfUse: "Terms of Use",
+      privacyPolicy: "Privacy Policy",
+      sendMessage: "Send Message",
+      yourMessage: "Your message",
+      subject: "Subject",
+    },
+    // Ratings
+    ratings: {
+      defense: "Defense",
+      offense: "Offense",
+      general: "General",
+      rateOpposingTeam: "Rate opposing team players",
     },
     // Gamification
     gamification: {
@@ -505,6 +560,61 @@ export const translations = {
       superOrganizerDesc: "ארגן 10 אירועים",
       allStar: "כוכב על",
       allStarDesc: "קבל דירוג 5 כוכבים 10 פעמים",
+      fairPlay: "שחקן הוגן",
+      fairPlayDesc: "שמור על ספורטיביות מעולה",
+      bestPlayer: "שחקן הטוב ביותר",
+      bestPlayerDesc: "הביצועים הטובים ביותר בעונה",
+      mostActive: "השחקן הפעיל ביותר",
+      mostActiveDesc: "הכי הרבה משחקים בעונה",
+    },
+    // Teams & Leagues
+    teams: {
+      myTeams: "הקבוצות שלי",
+      createTeam: "צור קבוצה",
+      teamName: "שם הקבוצה",
+      captain: "קפטן",
+      members: "חברים",
+      leagues: "ליגות",
+      wins: "ניצחונות",
+      losses: "הפסדים",
+      draws: "תיקו",
+      standings: "טבלת דירוג",
+      joinLeague: "הצטרף לליגה",
+      inviteReferee: "הזמן שופט",
+    },
+    // Coach
+    coach: {
+      trainingPrograms: "תוכניות אימון",
+      createProgram: "צור תוכנית",
+      sessions: "מפגשים",
+      enrolled: "נרשמו",
+      difficulty: "רמת קושי",
+    },
+    // Filters
+    filters: {
+      surfaceType: "סוג משטח",
+      synthetic: "סינטטי",
+      asphalt: "אספלט",
+      grass: "דשא",
+      distance: "מרחק",
+      within: "עד",
+      km: "ק״מ",
+    },
+    // Legal
+    legal: {
+      contactUs: "צור קשר",
+      termsOfUse: "תנאי שימוש",
+      privacyPolicy: "מדיניות פרטיות",
+      sendMessage: "שלח הודעה",
+      yourMessage: "ההודעה שלך",
+      subject: "נושא",
+    },
+    // Ratings
+    ratings: {
+      defense: "הגנה",
+      offense: "התקפה",
+      general: "כללי",
+      rateOpposingTeam: "דרג שחקני הקבוצה היריבה",
     },
     // Gamification
     gamification: {

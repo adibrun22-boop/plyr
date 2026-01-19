@@ -94,13 +94,22 @@ function FieldCard({ field, onSelect, onCreateEvent }) {
   );
 }
 
-export default function FieldSelectionMap({ onFieldSelect, onCreateAtField }) {
+export default function FieldSelectionMap({ onFieldSelect, onCreateAtField, filters = {} }) {
   const { language } = useLanguage();
   const [selectedField, setSelectedField] = useState(null);
 
-  const { data: fields = [] } = useQuery({
+  const { data: allFields = [] } = useQuery({
     queryKey: ['sportsFields'],
     queryFn: () => base44.entities.SportsField.list(),
+  });
+
+  // Filter fields based on filters
+  const fields = allFields.filter(field => {
+    if (filters.surfaceType && filters.surfaceType !== 'all' && field.surface_type !== filters.surfaceType) {
+      return false;
+    }
+    // Additional distance filtering can be added here
+    return true;
   });
 
   const defaultCenter = [31.9730, 34.7925]; // Rishon LeZion
