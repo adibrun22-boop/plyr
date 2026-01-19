@@ -147,7 +147,7 @@ export default function CoachDashboard() {
                         <p className="text-sm text-gray-500 mt-1">{program.description}</p>
                         <div className={cn("flex gap-4 mt-3 text-sm", isRTL && "flex-row-reverse")}>
                           <span className="text-gray-600">
-                            {program.sport_type} • {program.duration_weeks} {isRTL ? 'שבועות' : 'weeks'}
+                            {t(`sports.${program.sport_type}`)} • {program.duration_weeks} {isRTL ? 'שבועות' : 'weeks'}
                           </span>
                           <span className="text-emerald-600 font-medium">
                             {program.enrolled_players?.length || 0} {isRTL ? 'תלמידים' : 'students'}
