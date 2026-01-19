@@ -15,6 +15,8 @@ import Settings from './pages/Settings';
 import ContactUs from './pages/ContactUs';
 import TermsOfUse from './pages/TermsOfUse';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import Teams from './pages/Teams';
+import CoachProfile from './pages/CoachProfile';
 import __Layout from './Layout.jsx';
 
 
@@ -36,6 +38,8 @@ export const PAGES = {
     "ContactUs": ContactUs,
     "TermsOfUse": TermsOfUse,
     "PrivacyPolicy": PrivacyPolicy,
+    "Teams": Teams,
+    "CoachProfile": CoachProfile,
 }
 
 export const pagesConfig = {

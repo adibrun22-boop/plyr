@@ -12,7 +12,8 @@ import {
   ChevronRight,
   UserPlus,
   BarChart3,
-  Image
+  Image,
+  GraduationCap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -168,32 +169,65 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Edit Profile Button - Only show on own profile */}
+        {/* Action Buttons - Only show on own profile */}
         {isOwnProfile && (
-          <Link to={createPageUrl('EditProfile')}>
-            <Button 
-              variant="outline" 
-              className="mt-4 w-full bg-white/10 border-white/30 text-white hover:bg-white/20 gap-2"
-            >
-              <Edit className="w-4 h-4" />
-              {t('profile.editProfile')}
-            </Button>
-          </Link>
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            <Link to={createPageUrl('EditProfile')}>
+              <Button 
+                variant="outline" 
+                className="w-full bg-white/10 border-white/30 text-white hover:bg-white/20 gap-2"
+              >
+                <Edit className="w-4 h-4" />
+                {t('profile.editProfile')}
+              </Button>
+            </Link>
+            <Link to={createPageUrl('Teams')}>
+              <Button 
+                variant="outline" 
+                className="w-full bg-white/10 border-white/30 text-white hover:bg-white/20 gap-2"
+              >
+                <Users className="w-4 h-4" />
+                {t('teams.myTeams')}
+              </Button>
+            </Link>
+          </div>
         )}
       </div>
 
+      {/* Coach Badge */}
+      {player.profile_type === 'coach' && (
+        <Link to={createPageUrl('CoachProfile')}>
+          <div className="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl p-4 mb-6 flex items-center justify-between">
+            <div className={cn("flex items-center gap-3", isRTL && "flex-row-reverse")}>
+              <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+                <GraduationCap className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold">
+                  {language === 'he' ? 'פרופיל מאמן' : 'Coach Profile'}
+                </h3>
+                <p className="text-white/80 text-sm">
+                  {language === 'he' ? 'צפה בתוכניות האימון שלך' : 'View your training programs'}
+                </p>
+              </div>
+            </div>
+            <ChevronRight className={cn("w-5 h-5 text-white", isRTL && "rotate-180")} />
+          </div>
+        </Link>
+      )}
+
       {/* Tabs */}
       <Tabs defaultValue="social" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-6">
-          <TabsTrigger value="social" className="gap-2">
-            <Image className="w-4 h-4" />
-            {language === 'he' ? 'פרופיל' : 'Profile'}
-          </TabsTrigger>
-          <TabsTrigger value="stats" className="gap-2">
-            <BarChart3 className="w-4 h-4" />
-            {language === 'he' ? 'נתונים' : 'Stats'}
-          </TabsTrigger>
-        </TabsList>
+      <TabsList className="grid w-full grid-cols-2 mb-6">
+        <TabsTrigger value="social" className="gap-2">
+          <Image className="w-4 h-4" />
+          {language === 'he' ? 'פרופיל' : 'Profile'}
+        </TabsTrigger>
+        <TabsTrigger value="stats" className="gap-2">
+          <BarChart3 className="w-4 h-4" />
+          {language === 'he' ? 'נתונים' : 'Stats'}
+        </TabsTrigger>
+      </TabsList>
 
         {/* Social Tab */}
         <TabsContent value="social" className="space-y-6">
